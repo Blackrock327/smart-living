@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1115 1285" role="img" aria-labelledby="title desc">
+  <title id="title">แปลนบ้านแบบวาดเวกเตอร์ อ้างอิงรายละเอียดจาก PDF</title>
+  <desc id="desc">แปลนบ้านชั้นเดียว มีครัว ห้องนอนสามห้อง ห้องน้ำสองห้อง โถงนั่งเล่น ระเบียง รายละเอียดผนัง ประตู หน้าต่าง เฟอร์นิเจอร์ และมิติ เลือกห้องเพื่อดูอุปกรณ์</desc>
+  <defs>
+    <pattern id="wallHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7c827d" stroke-width="1"/></pattern>
+    <style>
+      .axis{fill:none;stroke:#929892;stroke-width:1;stroke-dasharray:9 7}
+      .dim{fill:none;stroke:#5b625c;stroke-width:1.15}
+      .dim-text{font:15px Arial,Tahoma,sans-serif;fill:#343a35;text-anchor:middle}
+      .axis-text{font:13px Arial,sans-serif;fill:#303631;text-anchor:middle;dominant-baseline:middle}
+      .axis-circle{fill:#fff;stroke:#303631;stroke-width:1.5}
+      .wall{fill:none;stroke:#242a25;stroke-width:6;stroke-linejoin:miter;stroke-linecap:square}
+      .inner-wall{fill:none;stroke:#303631;stroke-width:4.5;stroke-linecap:square;stroke-linejoin:miter}
+      .thin{fill:none;stroke:#515952;stroke-width:1.25}
+      .fine{fill:none;stroke:#7e857f;stroke-width:.9}
+      .column{fill:#fff;stroke:#272d28;stroke-width:2.2}
+      .column-core{fill:#303631}
+      .room-label{font:12px Tahoma,Arial,sans-serif;fill:#3c433d;text-anchor:middle}
+      .room-level{font:9px Arial,sans-serif;fill:#5d655e;text-anchor:middle}
+      .number-tag{fill:#fff;stroke:#303631;stroke-width:1.1}
+      .number-text{font:10px Arial,sans-serif;fill:#303631;text-anchor:middle;dominant-baseline:middle}
+      .fixture{fill:#fff;stroke:#424943;stroke-width:1.5}
+      .furniture{fill:#fafbf9;stroke:#555d56;stroke-width:1.35}
+      .bed-fill{fill:#ead8b6;stroke:#383e39;stroke-width:2}
+      .bed-line{fill:none;stroke:#8b806b;stroke-width:1.3}
+      .zone{fill:#e9eee9;fill-opacity:.22;stroke:transparent;stroke-width:4;transition:fill-opacity .18s,stroke .18s;cursor:pointer}
+      .room:hover .zone,.room:focus .zone{fill:#7eaa86;fill-opacity:.2;stroke:#6a9270;stroke-dasharray:8 5}
+      .room.selected .zone{fill:#74a77c;fill-opacity:.28;stroke:#3c7549;stroke-width:5}
+      .room:focus{outline:none}
+      .door{fill:none;stroke:#535a54;stroke-width:1.25}
+      .window{fill:#fff;stroke:#333a34;stroke-width:1.3}
+      .window-line{stroke:#626a63;stroke-width:1}
+      .symbol{fill:#fff;stroke:#303631;stroke-width:1.25}
+      .symbol-text{font:9px Arial,sans-serif;fill:#343a35;text-anchor:middle;dominant-baseline:middle}
+    </style>
+    <g id="column"><rect class="column" x="-9" y="-9" width="18" height="18"/><rect class="column-core" x="-4" y="-4" width="8" height="8"/></g>
+    <g id="windowHorizontal"><rect class="window" x="-31" y="-4" width="62" height="8"/><path class="window-line" d="M-27 0H27M0-4V4"/></g>
+    <g id="windowVertical"><rect class="window" x="-4" y="-31" width="8" height="62"/><path class="window-line" d="M0-27V27M-4 0H4"/></g>
+    <g id="windowTag"><path class="symbol" d="M0-10 8 0 0 10-8 0Z"/><text class="symbol-text" x="0" y="1">น1</text></g>
+    <g id="triangleTag"><path class="symbol" d="M-8-7 0 7 8-7Z"/><path class="symbol" d="M-8 7 0-7 8 7Z"/></g>
+    <g id="basin"><ellipse class="fixture" cx="0" cy="0" rx="19" ry="14"/><ellipse class="fine" cx="0" cy="0" rx="8" ry="5"/><circle class="fine" cx="0" cy="0" r="2"/></g>
+    <g id="toilet"><rect class="fixture" x="-11" y="-21" width="22" height="14" rx="2"/><path class="fixture" d="M-9-7h18v7a12 12 0 0 1-24 0v-7Z"/><ellipse class="fine" cx="0" cy="0" rx="6" ry="8"/></g>
+    <g id="bed"><path class="bed-fill" d="M0 15Q5 3 0-9Q9-15 17-8Q30-11 42-6Q56-14 70-7Q87-14 101-7Q118-15 132-7Q146-13 158-5L164 15V105L157 113Q140 107 128 114Q111 107 98 114Q82 107 67 114Q51 107 37 113Q22 106 10 113L0 105Z"/><path class="bed-line" d="M12 20Q20 35 13 49Q7 67 16 81Q22 94 12 106M38 17Q50 31 43 47Q34 68 45 82Q51 94 41 108M68 15Q79 30 72 48Q64 67 74 83Q79 96 68 109M101 15Q111 28 104 45Q96 63 106 81Q112 96 101 109M132 14Q140 31 134 48Q128 65 138 83Q143 97 133 108"/><rect class="furniture" x="130" y="2" width="26" height="36" rx="5"/><path class="fine" d="M135 7h16m-16 5h16"/><rect class="furniture" x="130" y="52" width="26" height="36" rx="5"/><path class="fine" d="M135 57h16m-16 5h16"/></g>
+  </defs>
+
+  <!-- Clickable room areas sit under the architectural linework. -->
+  <g class="room" data-room="kitchen" tabindex="0" role="button" aria-label="เลือกห้องครัว"><path class="zone" d="M203 235H508V365H280V415H203Z"/></g>
+  <g class="room" data-room="bedroom2" tabindex="0" role="button" aria-label="เลือกห้องนอน 2"><path class="zone" d="M280 365H508V590H280Z"/></g>
+  <g class="room" data-room="bathroom1" tabindex="0" role="button" aria-label="เลือกห้องน้ำ 1"><path class="zone" d="M637 295H829V398H637Z"/></g>
+  <g class="room" data-room="bedroom3" tabindex="0" role="button" aria-label="เลือกห้องนอน 3"><path class="zone" d="M637 398H862V625H637Z"/></g>
+  <g class="room" data-room="bathroom2" tabindex="0" role="button" aria-label="เลือกห้องน้ำ 2"><path class="zone" d="M280 590H508V686H280Z"/></g>
+  <g class="room" data-room="bedroom1" tabindex="0" role="button" aria-label="เลือกห้องนอน 1"><path class="zone" d="M280 686H508V913H280Z"/></g>
+  <g class="room" data-room="living" tabindex="0" role="button" aria-label="เลือกห้องโถง"><path class="zone" fill-rule="evenodd" d="M508 235H637V398H508Z M508 398H637V625H508Z M508 625H862V913H508Z"/></g>
+
+  <!-- Structural grid axes and grid bubbles. -->
+  <g aria-hidden="true">
+    <path class="axis" d="M203 185V1180M442 185V1180M637 185V1180M829 185V1180"/>
+    <path class="axis" d="M40 236H1065M40 365H1065M40 590H1065M40 686H1065M40 913H1065M40 1043H1065"/>
+    <g><circle class="axis-circle" cx="203" cy="35" r="12"/><text class="axis-text" x="203" y="35">1</text><circle class="axis-circle" cx="442" cy="35" r="12"/><text class="axis-text" x="442" y="35">2</text><circle class="axis-circle" cx="637" cy="35" r="12"/><text class="axis-text" x="637" y="35">3</text><circle class="axis-circle" cx="829" cy="35" r="12"/><text class="axis-text" x="829" y="35">4</text></g>
+    <g><circle class="axis-circle" cx="12" cy="236" r="12"/><text class="axis-text" x="12" y="236">F</text><circle class="axis-circle" cx="12" cy="365" r="12"/><text class="axis-text" x="12" y="365">E</text><circle class="axis-circle" cx="12" cy="590" r="12"/><text class="axis-text" x="12" y="590">D</text><circle class="axis-circle" cx="12" cy="686" r="12"/><text class="axis-text" x="12" y="686">C</text><circle class="axis-circle" cx="12" cy="913" r="12"/><text class="axis-text" x="12" y="913">B</text><circle class="axis-circle" cx="12" cy="1043" r="12"/><text class="axis-text" x="12" y="1043">A</text></g>
+  </g>
+
+  <!-- Main and secondary dimension chains from the reference plan. -->
+  <g aria-hidden="true">
+    <path class="dim" d="M203 68V53M829 68V53M203 67H829M203 123V107M442 123V107M637 123V107M829 123V107M862 123V107M203 122H862"/>
+    <text class="dim-text" x="516" y="61">9.70</text><text class="dim-text" x="322" y="116">3.70</text><text class="dim-text" x="539" y="116">3.00</text><text class="dim-text" x="733" y="116">3.00</text><text class="dim-text" x="846" y="116">0.50</text>
+    <path class="dim" d="M129 236H112M129 365H112M129 590H112M129 686H112M129 913H112M129 1043H112M129 236V1043M40 236H29M40 1043H29M40 236V1043"/>
+    <text class="dim-text" x="101" y="305">2.00</text><text class="dim-text" x="101" y="481">3.50</text><text class="dim-text" x="101" y="638">1.50</text><text class="dim-text" x="101" y="799">3.50</text><text class="dim-text" x="101" y="984">2.00</text><text class="dim-text" x="57" y="642" transform="rotate(-90 57 642)">12.50</text>
+    <path class="dim" d="M975 236H991M975 295H991M975 398H991M975 622H991M975 881H991M975 1043H991M975 236V1043M1065 236H1082M1065 1043H1082M1065 236V1043"/>
+    <text class="dim-text" x="1007" y="270">1.00</text><text class="dim-text" x="1007" y="350">1.50</text><text class="dim-text" x="1007" y="514">3.50</text><text class="dim-text" x="1007" y="757">4.00</text><text class="dim-text" x="1007" y="967">2.50</text><text class="dim-text" x="1090" y="641" transform="rotate(-90 1090 641)">12.50</text>
+    <path class="dim" d="M280 1188V1172M508 1188V1172M637 1188V1172M829 1188V1172M280 1187H829M280 1236V1220M829 1236V1220M280 1235H829"/>
+    <text class="dim-text" x="394" y="1180">3.50</text><text class="dim-text" x="572" y="1180">2.00</text><text class="dim-text" x="733" y="1180">3.00</text><text class="dim-text" x="555" y="1228">8.50</text>
+  </g>
+
+  <!-- Room furniture and sanitary fixtures. -->
+  <g aria-hidden="true">
+    <!-- Kitchen counter, sink, and cooktop -->
+    <path class="furniture" d="M360 247H457V277H360Z M425 277V286H500V247"/><rect class="furniture" x="365" y="251" width="31" height="18" rx="2"/><path class="fine" d="M369 255h22v10h-22zM399 252h20v18h-20zM403 256h5m4 0h5m-14 5h5m4 0h5"/>
+    <rect class="furniture" x="404" y="288" width="73" height="32"/><text class="room-label" x="440" y="302">ห้องครัว</text><text class="room-level" x="440" y="314">W1 +0.95 ม.</text>
+
+    <!-- Bedroom 2 -->
+    <use href="#bed" x="342" y="382"/>
+    <rect class="furniture" x="340" y="526" width="73" height="29"/><text class="room-label" x="376" y="539">ห้องนอน 2</text><text class="room-level" x="376" y="550">W1 +1.00 ม.</text>
+    <!-- Bedroom 3 -->
+    <use href="#bed" x="687" y="486"/>
+    <rect class="furniture" x="713" y="427" width="73" height="29"/><text class="room-label" x="749" y="440">ห้องนอน 3</text><text class="room-level" x="749" y="451">W1 +1.00 ม.</text>
+    <!-- Bedroom 1 -->
+    <use href="#bed" x="342" y="780"/>
+    <rect class="furniture" x="340" y="721" width="73" height="29"/><text class="room-label" x="376" y="734">ห้องนอน 1</text><text class="room-level" x="376" y="745">W1 +1.00 ม.</text>
+
+    <!-- Bathroom 1 -->
+    <use href="#basin" x="687" y="322"/><use href="#toilet" x="737" y="347"/>
+    <rect class="furniture" x="772" y="306" width="46" height="76"/><path class="fine" d="M778 312v64m7-64v64m7-64v64m7-64v64"/>
+    <rect class="furniture" x="744" y="357" width="75" height="28"/><text class="room-label" x="781" y="369">ห้องน้ำ 2</text><text class="room-level" x="781" y="380">W2 +0.90 ม.</text>
+    <!-- Bathroom 2 -->
+    <use href="#toilet" x="380" y="631"/><use href="#basin" x="427" y="614"/>
+    <rect class="furniture" x="292" y="641" width="70" height="27"/><text class="room-label" x="327" y="652">ห้องน้ำ 1</text><text class="room-level" x="327" y="663">W2 +0.90 ม.</text>
+
+    <!-- Living room furniture -->
+    <rect class="furniture" x="702" y="768" width="40" height="52"/><path class="fine" d="M708 776h28m-28 7h28m-28 7h28m-28 7h28m-28 7h28"/>
+    <rect class="furniture" x="760" y="772" width="39" height="54"/><path class="fine" d="M766 780h27m-27 7h27m-27 7h27m-27 7h27"/>
+    <path class="furniture" d="M770 749h48v96h-48zM775 755h37v32h-37zM775 794h37v44h-37zM766 753h-7v85h7"/>
+    <path class="furniture" d="M665 851h82v54h-82zM665 851v-12h31v12m20 0v-12h31v12m-82 54v-11h31v11m20 0v-11h31v11m-82-34h-11v18h11m82-18h11v18h-11"/>
+    <rect class="furniture" x="701" y="768" width="39" height="52"/>
+    <rect class="furniture" x="584" y="784" width="73" height="29"/><text class="room-label" x="620" y="797">ห้องโถง</text><text class="room-level" x="620" y="808">W1 +1.00 ม.</text>
+    <!-- Porch label, step run, and landing -->
+    <rect class="furniture" x="340" y="986" width="95" height="31"/><text class="room-label" x="387" y="999">ระเบียง</text><text class="room-level" x="387" y="1011">W1 +0.90 ม.</text>
+    <path class="thin" d="M519 963H635M519 971H635M519 979H635M519 987H635M519 995H635M519 1003H635M519 1011H635M519 1019H635"/>
+  </g>
+
+  <!-- Wall, opening, and door geometry. -->
+  <g aria-hidden="true">
+    <!-- เส้นรอบนอกวาดเป็นแนวเดียวตามขั้นและส่วนยื่นที่เห็นใน PDF -->
+    <path class="wall" d="M203 235H637V295H829V398H862V622H829V1043H280V365H203Z"/>
+    <path class="inner-wall" d="M280 365H508M508 235V365M508 365V526M280 590H508M280 686H508M508 686V747M508 789V913M280 913H637M637 913V1043M637 1043H829M637 398H680M724 398H829M637 398V458M637 503V625M637 625H829"/>
+    <!-- Entry recess and internal door swings -->
+    <path class="door" d="M280 365V415M280 365A50 50 0 0 1 330 415M508 526H455M508 526A53 53 0 0 0 455 579M508 747H455M508 747A53 53 0 0 0 455 800M680 398V443M680 398A45 45 0 0 1 725 443M724 398V353M724 398A45 45 0 0 0 679 353M203 315H242M203 315A39 39 0 0 1 242 354"/>
+    <!-- Windows with double sash lines -->
+    <use href="#windowHorizontal" x="366" y="235"/><use href="#windowHorizontal" x="570" y="235"/>
+    <use href="#windowHorizontal" x="400" y="913"/><use href="#windowHorizontal" x="570" y="913"/>
+    <use href="#windowVertical" x="280" y="477"/><use href="#windowVertical" x="280" y="800"/>
+    <use href="#windowVertical" x="829" y="508"/><use href="#windowVertical" x="829" y="772"/>
+    <!-- Structural columns at grid intersections -->
+    <use href="#column" x="203" y="235"/><use href="#column" x="442" y="235"/><use href="#column" x="637" y="235"/><use href="#column" x="829" y="295"/>
+    <use href="#column" x="280" y="365"/><use href="#column" x="508" y="365"/><use href="#column" x="508" y="590"/>
+    <use href="#column" x="280" y="590"/><use href="#column" x="508" y="686"/><use href="#column" x="280" y="686"/>
+    <use href="#column" x="280" y="913"/><use href="#column" x="508" y="913"/><use href="#column" x="637" y="913"/><use href="#column" x="829" y="913"/>
+    <use href="#column" x="280" y="1043"/><use href="#column" x="508" y="1043"/><use href="#column" x="637" y="1043"/><use href="#column" x="829" y="1043"/>
+    <!-- Window and door reference marks -->
+    <use href="#triangleTag" x="323" y="235"/><use href="#triangleTag" x="539" y="235"/><use href="#triangleTag" x="400" y="913"/><use href="#triangleTag" x="570" y="913"/>
+    <use href="#windowTag" x="280" y="477"/><use href="#windowTag" x="280" y="800"/><use href="#windowTag" x="829" y="508"/><use href="#windowTag" x="829" y="772"/>
+    <circle class="number-tag" cx="236" cy="345" r="13"/><text class="number-text" x="236" y="345">13</text>
+    <circle class="number-tag" cx="486" cy="375" r="13"/><text class="number-text" x="486" y="375">11</text>
+    <circle class="number-tag" cx="485" cy="560" r="13"/><text class="number-text" x="485" y="560">12</text>
+    <circle class="number-tag" cx="447" cy="655" r="13"/><text class="number-text" x="447" y="655">14</text>
+    <circle class="number-tag" cx="485" cy="725" r="13"/><text class="number-text" x="485" y="725">12</text>
+    <circle class="number-tag" cx="657" cy="375" r="13"/><text class="number-text" x="657" y="375">14</text>
+  </g>
+
+  <!-- Section markers and drawing notes. -->
+  <g aria-hidden="true">
+    <path class="thin" d="M706 235H756V1116H706M756 235h35M756 1116h35"/>
+    <path class="symbol" d="M706 220 721 235 706 250 691 235Z"/><text class="symbol-text" x="706" y="236">A</text>
+    <path class="symbol" d="M706 1101 721 1116 706 1131 691 1116Z"/><text class="symbol-text" x="706" y="1117">A</text>
+    <text class="room-level" x="565" y="1270">แบบแปลนพื้น · ถอดรายละเอียดจาก PDF ต้นฉบับ · สัดส่วนแสดงเพื่อการดูบนเว็บไซต์</text>
+  </g>
+</svg>

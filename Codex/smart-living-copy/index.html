@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f3">
+  <meta name="description" content="แดชบอร์ด Smart Living สำหรับดูแปลนบ้านและรายการอุปกรณ์ในแต่ละห้อง">
+  <title>Smart Living | Home Systems</title>
+  <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
+  <link rel="stylesheet" href="style.css?v=11">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js?v=11" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="เมนูหลัก">
+      <a class="brand" href="#top" aria-label="Smart Living หน้าหลัก">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 15.5 16 5l12 10.5v12H4z"/><path d="M12 27.5v-8h8v8M9 15l7-6 7 6"/></svg></span>
+        <span><strong>smart<span>living</span></strong><small>HOME SYSTEMS</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="main-nav">
+        <a class="nav-item active" href="#overview"><i class="nav-icon" data-lucide="layout-dashboard" aria-hidden="true"></i> ภาพรวมบ้าน</a>
+        <a class="nav-item" href="#floor-plan"><i class="nav-icon" data-lucide="panels-top-left" aria-hidden="true"></i> แปลนและห้อง</a>
+        <a class="nav-item" href="#equipment"><i class="nav-icon" data-lucide="plug" aria-hidden="true"></i> อุปกรณ์</a>
+        <a class="nav-item" href="#energy"><i class="nav-icon" data-lucide="zap" aria-hidden="true"></i> พลังงาน</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="home-card"><span class="home-card-icon"><i data-lucide="house" aria-hidden="true"></i></span><div><b>บ้านพักอาศัย</b><small>แปลนอ้างอิง · ชั้นเดียว</small></div><span class="live-dot"></span></div>
+        <div class="profile"><div class="avatar">SL</div><div><b>Smart Living</b><small>โหมดตัวอย่าง</small></div><span class="profile-more" aria-hidden="true"><i data-lucide="ellipsis" aria-hidden="true"></i></span></div>
+      </div>
+    </aside>
+
+    <main id="top" class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">โครงการ <span>/</span> <b>บ้านพักอาศัย</b></div>
+        <div class="topbar-right"><span class="demo-pill"><i></i> DEMO MODE</span><button class="icon-button" id="resetDemo" type="button" title="คืนค่าสถานะตัวอย่าง" aria-label="คืนค่าสถานะตัวอย่าง"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button><div class="top-avatar">SL</div></div>
+      </header>
+
+      <section id="overview" class="welcome-row">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span> RESIDENTIAL · FLOOR 01</div><h1>บ้านของคุณ<span class="title-period">.</span></h1><p>ภาพรวมระบบบ้านและอุปกรณ์ แยกดูได้ตามพื้นที่</p></div>
+        <div class="date-chip"><span class="date-icon"><i data-lucide="activity" aria-hidden="true"></i></span><span><small>สถานะระบบ</small><b><i class="live-dot"></i> พร้อมใช้งาน · จำลอง</b></span></div>
+      </section>
+
+      <section class="metric-grid" aria-label="ข้อมูลจากตารางอุปกรณ์">
+        <article class="metric-card metric-primary"><div class="metric-top"><span>อุปกรณ์ทั้งหมด</span><span class="metric-icon"><i data-lucide="cpu" aria-hidden="true"></i></span></div><div class="metric-value" id="totalDevices">—</div><div class="metric-foot"><span class="metric-foot-dot"></span> รายการจากไฟล์ข้อมูล</div><div class="metric-spark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="metric-card"><div class="metric-top"><span>เครื่องปรับอากาศ</span><span class="metric-icon metric-icon-blue"><i data-lucide="wind" aria-hidden="true"></i></span></div><div class="metric-value" id="acCount">—</div><div class="metric-foot">เครื่อง · ตามตารางอุปกรณ์</div><div class="mini-bars blue-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="metric-card"><div class="metric-top"><span>หลอดไฟ</span><span class="metric-icon metric-icon-amber"><i data-lucide="lightbulb" aria-hidden="true"></i></span></div><div class="metric-value" id="lightCount">—</div><div class="metric-foot">ดวง · ตามตารางอุปกรณ์</div><div class="mini-bars amber-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="metric-card"><div class="metric-top"><span>พื้นที่ในแปลน</span><span class="metric-icon metric-icon-green"><i data-lucide="map" aria-hidden="true"></i></span></div><div class="metric-value">7<span class="metric-unit"> ห้อง</span></div><div class="metric-foot">ชั้นเดียว · แปลนโดยประมาณ</div><div class="mini-bars green-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+      </section>
+
+      <section id="floor-plan" class="content-grid">
+        <article class="panel plan-panel">
+          <div class="panel-heading"><div><div class="section-kicker">SPATIAL OVERVIEW</div><h2>แปลนบ้าน</h2><p class="panel-subtitle">เลือกห้องเพื่อซูมดูพื้นที่นั้น · กด “ดูทั้งแปลน” เพื่อกลับ</p></div><div class="plan-tools"><span class="approx-tag"><i data-lucide="map-pin" aria-hidden="true"></i> แปลนประมาณ</span><button class="small-button" id="showAllRooms" type="button">ดูทั้งแปลน <i data-lucide="maximize-2" aria-hidden="true"></i></button></div></div>
+          <div class="plan-canvas"><div class="north-mark"><span>N</span><i>↑</i></div><object id="floorPlan" data="floor-plan.svg?v=2" type="image/svg+xml" aria-label="แปลนบ้านแบบคลิกเลือกห้องได้"><div class="object-fallback">เปิดแปลนไม่ได้ ตรวจสอบว่า floor-plan.svg อยู่โฟลเดอร์เดียวกัน</div></object><div class="plan-legend"><span><i class="legend-dot legend-bedroom"></i> ห้องนอน</span><span><i class="legend-dot legend-service"></i> พื้นที่บริการ</span><span><i class="legend-dot legend-common"></i> พื้นที่ส่วนกลาง</span></div></div>
+          <div class="dimension-strip"><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านยาว</small><b>12.50 <em>ม.</em></b></span></div><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านกว้าง</small><b>9.70 <em>ม.</em></b></span></div><div class="dimension-note">อ้างอิงตัวเลขที่อ่านได้จากแบบ PDF<br>ตำแหน่งและสัดส่วนในภาพเป็นค่าประมาณ</div></div>
+        </article>
+
+        <aside class="panel detail-panel" aria-live="polite">
+          <div class="detail-heading"><div><div class="section-kicker">ROOM DETAILS</div><h2 id="roomTitle">ภาพรวมทุกห้อง</h2></div><span class="room-number" id="roomNumber">ALL</span></div>
+          <div class="room-summary"><div class="room-illustration" id="roomIcon"><i data-lucide="house" aria-hidden="true"></i></div><div><span class="summary-label">อุปกรณ์ในพื้นที่</span><strong id="roomDeviceTotal">—</strong><small>รายการที่ระบุในตาราง</small></div></div>
+          <div class="device-list" id="deviceList"></div>
+          <div class="detail-divider"></div>
+          <div class="usage-note"><span class="usage-note-icon"><i data-lucide="info" aria-hidden="true"></i></span><p><b>พลังงานในห้องนี้</b><br>แสดงค่าประมาณจากกำลังไฟและพฤติกรรมใช้งานตัวอย่าง ดูสมมติฐานและที่มาด้านล่าง</p></div>
+          <div class="control-note"><span class="control-pulse"></span> ปุ่มสถานะด้านบนเป็นการสาธิตบนหน้าเว็บ ไม่ได้ควบคุมอุปกรณ์จริง</div>
+        </aside>
+      </section>
+
+      <section id="equipment" class="panel equipment-panel">
+        <div class="equipment-heading"><div><div class="section-kicker">INVENTORY</div><h2>รายการอุปกรณ์ในบ้าน</h2></div><span class="source-label"><i data-lucide="file-spreadsheet" aria-hidden="true"></i> สรุปจากตาราง XLSX ที่แนบมา</span></div>
+        <div class="equipment-table-wrap"><table><thead><tr><th>ประเภทอุปกรณ์</th><th>จำนวน</th><th>การแสดงผล</th><th>พลังงาน</th></tr></thead><tbody id="inventoryRows"></tbody></table></div>
+        <div class="table-footnote"><i data-lucide="info" aria-hidden="true"></i> ชื่อห้องบางรายการในไฟล์ XLSX แสดงผลไม่สมบูรณ์ จึงจับคู่จำนวนกับชื่อพื้นที่ตามลำดับแถวเดิมของตาราง</div>
+      </section>
+      <section id="energy" class="panel energy-panel">
+        <div class="equipment-heading">
+          <div><div class="section-kicker">ENERGY ESTIMATE</div><h2>ประมาณการใช้พลังงาน</h2><p class="panel-subtitle">คำนวณจากจำนวนอุปกรณ์และค่ากำลังไฟ/เวลาใช้งานตัวอย่าง</p></div>
+          <span class="source-label estimate-label">ค่าประมาณ · ไม่ใช่ค่ามิเตอร์จริง</span>
+        </div>
+        <div class="energy-summary">
+          <div class="energy-total-card"><span>พลังงานโดยประมาณต่อเดือนตามสถานะสวิตช์</span><div><strong id="energyTotal">—</strong><b>kWh / เดือน</b></div><small>ใช้สมมติฐาน 30 วันต่อเดือน · ปรับตามสถานะเปิด/ปิด</small></div>
+          <div class="energy-daily-card"><span>เฉลี่ยต่อวัน</span><strong><span id="energyDaily">—</span> <small>kWh / วัน</small></strong><p>ปรับค่ากำลังไฟและชั่วโมงใช้งานได้ใน <code>script.js</code></p></div>
+        </div>
+        <div class="bill-estimate-panel">
+          <div class="bill-estimate-heading">
+            <div><b>ประมาณค่าไฟที่ต้องจ่ายเดือนนี้</b><small>คำนวณจากหน่วยไฟต่อเดือนในแบบจำลอง รวม Ft ค่าบริการ และ VAT</small></div>
+            <div class="bill-total"><strong id="billEstimatedTotal">—</strong><span>บาท / เดือน</span></div>
+          </div>
+          <div class="bill-settings">
+            <label>ประเภทอัตราตามบิล
+              <select id="billRateType">
+                <option value="regular" selected>PEA 1.1.2 · บ้านใช้เกิน 150 หน่วย</option>
+                <option value="lowUse">PEA 1.1.1 · บ้านใช้ไม่เกิน 150 หน่วย</option>
+              </select>
+            </label>
+            <label>Ft (บาท/หน่วย)
+              <input id="billFtRate" type="number" value="0.1623" min="-1" max="5" step="0.0001" inputmode="decimal">
+            </label>
+          </div>
+          <div class="bill-meta"><span id="billRateLabel">PEA 1.1.2 · ใช้เกิน 150 หน่วย</span><span>ประมาณ <b id="billEstimatedUnits">—</b> หน่วย/เดือน</span></div>
+          <div class="bill-breakdown">
+            <div><span>ค่าไฟฟ้าฐานตามขั้นบันได</span><b id="billEnergyCharge">—</b></div>
+            <div><span id="billFtPeriod">Ft ปัจจุบัน</span><b id="billFtCharge">—</b></div>
+            <div><span>ค่าบริการรายเดือน</span><b id="billServiceCharge">—</b></div>
+            <div><span>VAT 7%</span><b id="billVatCharge">—</b></div>
+          </div>
+          <p class="bill-note">อัตราบ้านอยู่อาศัย PEA มีผลตั้งแต่บิลกันยายน 2569; ค่า Ft ที่ตั้งไว้เป็นงวดกันยายน–ธันวาคม 2569 ปรับค่า Ft ด้านบนได้เมื่อเปลี่ยนงวด ยอดจริงขึ้นกับเลขมิเตอร์ ประเภทมิเตอร์ และรายการอื่นในบิล</p>
+          <div class="bill-sources"><a href="https://www.pea.co.th/sites/default/files/users/user34/attachments/Electricity_Tariff_SEP_2026_3.pdf" target="_blank" rel="noopener noreferrer">ตารางอัตราค่าไฟ PEA ปี 2569</a><a href="https://www.pea.co.th/our-services/tariff/ft" target="_blank" rel="noopener noreferrer">ตรวจสอบค่า Ft ล่าสุดจาก PEA</a></div>
+        </div>
+        <div class="live-energy-panel">
+          <div class="live-energy-heading">
+            <div><b>ข้อมูลพลังงานรายวันแบบจำลอง</b><small>อัปเดตข้อมูลทุก 1 ชั่วโมง</small></div>
+            <span class="live-badge"><i class="live-dot"></i> HOURLY · DEMO</span>
+          </div>
+          <div class="live-stat-grid">
+            <div class="live-stat"><span>พลังงานสะสมวันนี้</span><strong><span id="liveTodayKwh">—</span> <small>kWh</small></strong></div>
+            <div class="live-stat"><span>กำลังไฟขณะนี้</span><strong><span id="livePowerNow">—</span> <small>kW</small></strong></div>
+            <div class="live-stat"><span>อุปกรณ์ที่เปิดอยู่</span><strong id="liveActiveDevices">—</strong></div>
+          </div>
+          <div class="live-chart-wrap"><canvas id="liveEnergyChart" role="img" aria-label="กราฟจำลองพลังงานสะสมรายวันย้อนหลังเจ็ดวัน"></canvas></div>
+          <div class="live-energy-foot"><span>ย้อนหลัง 7 วัน · ค่าก่อนหน้าเป็นข้อมูลจำลอง</span><span>อัปเดตล่าสุด <b id="liveUpdatedAt">—</b></span></div>
+        </div>
+        <div class="energy-chart-card">
+          <div class="energy-chart-heading"><div><b>ใช้ไฟโดยประมาณแยกตามอุปกรณ์</b><small>ปรับตามสถานะสวิตช์ในหน้าเว็บ · kWh ต่อเดือน</small></div><span>kWh / เดือน</span></div>
+          <div class="energy-chart-wrap"><canvas id="energyChart" role="img" aria-label="กราฟแท่งแสดงพลังงานไฟฟ้าประมาณต่อเดือน แยกตามประเภทเครื่องใช้ไฟฟ้า"></canvas><p id="energyChartFallback" class="chart-fallback" hidden>โหลดกราฟไม่ได้ โปรดเชื่อมต่ออินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ</p></div>
+        </div>
+        <div class="equipment-table-wrap energy-table-wrap">
+          <table class="energy-table"><thead><tr><th>เครื่องใช้ไฟฟ้าที่เปิด</th><th>จำนวนเปิด</th><th>กำลังไฟเฉลี่ย/เครื่อง</th><th>เวลาใช้งานตัวอย่าง</th><th>ประมาณ kWh/เดือน</th></tr></thead><tbody id="energyRows"></tbody></table>
+        </div>
+        <div class="energy-method"><b>วิธีคำนวณ</b><span>เครื่องทั่วไป: วัตต์ × ชั่วโมง/วัน × 30 วัน × จำนวนเครื่อง ÷ 1,000</span><span>เครื่องซักผ้า: วัตต์ × ชั่วโมง/รอบ × รอบ/เดือน × จำนวนเครื่อง ÷ 1,000</span></div>
+        <p class="energy-disclaimer">สวิตช์นี้เปลี่ยนสถานะและยอดประมาณการภายในหน้าเว็บเท่านั้น ไม่ได้เชื่อมต่อหรือสั่งงานเครื่องใช้ไฟฟ้าจริง ตัวเลขพลังงานเป็นค่าประมาณจากกำลังไฟและชั่วโมงใช้งานตัวอย่าง รุ่นเครื่อง ขนาดห้อง อุณหภูมิ และพฤติกรรมจริงทำให้ผลต่างกันได้</p>
+        <div class="energy-sources"><b>แหล่งอ้างอิงสำหรับช่วงค่าและวิธีประเมิน</b><a href="https://www.pea.co.th/news/infographic/1812" target="_blank" rel="noopener noreferrer">การไฟฟ้าส่วนภูมิภาค (PEA): ค่าใช้จ่ายเฉลี่ยของเครื่องใช้ไฟฟ้าและตู้เย็นทำงานตลอดวัน</a><a href="https://www.energy.gov/sites/default/files/2022-02/ssl-rd22_urban_display.pdf" target="_blank" rel="noopener noreferrer">U.S. Department of Energy: กำลังไฟและชั่วโมงใช้งานทีวีเฉลี่ยจากการสำรวจ</a><a href="https://www.energy.gov/cmei/femp/purchasing-energy-efficient-light-bulbs" target="_blank" rel="noopener noreferrer">U.S. Department of Energy: กำลังไฟหลอด LED ตามระดับความสว่าง</a><a href="https://labelno5.egat.co.th/home/wp-content/uploads/2023/12/09_brief_WM.pdf" target="_blank" rel="noopener noreferrer">กฟผ.: เกณฑ์และวิธีวัดประสิทธิภาพเครื่องซักผ้า</a></div>
+      </section>
+      <footer class="footer"><span>SMART LIVING <i>·</i> ENGINEERING BLUEPRINT</span><span>ข้อมูลแสดงเพื่อสาธิตการจัดวางระบบบ้าน</span></footer>
+    </main>
+  </div>
+</body>
+</html>
+
+
+
+
