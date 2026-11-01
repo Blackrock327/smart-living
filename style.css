@@ -2287,4 +2287,209 @@ input:focus-visible, [tabindex]:focus-visible {
   border-color: #304936;
 }
 
-/*
+/* องค์ประกอบที่อาจโหลดช้า: จองพื้นที่กราฟไว้ ลดการขยับของหน้า */
+.live-chart-wrap,
+.energy-chart-wrap {
+  contain: layout paint;
+}
+
+.live-chart-wrap .chart-fallback,
+.energy-chart-wrap .chart-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 18px;
+  color: #c1d2c6;
+  background: #152019;
+  border: 1px dashed #45634a;
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.live-chart-wrap .chart-fallback[hidden],
+.energy-chart-wrap .chart-fallback[hidden] {
+  display: none;
+}
+
+.icon-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9cebb2;
+  font: 700 15px/1 'Segoe UI Symbol', Tahoma, sans-serif;
+  font-style: normal;
+  vertical-align: middle;
+}
+
+.live-energy-foot time {
+  color: #c9d9ce;
+  font-variant-numeric: tabular-nums;
+}
+
+/* เป้าหมายความเร็ว: การขยับแปลนและกราฟไม่ทำให้เนื้อหาข้างเคียงกระโดด */
+#floorPlan {
+  contain: paint;
+}
+
+canvas {
+  display: block;
+}
+
+canvas[hidden] {
+  display: none;
+}
+
+/* สีประจำเครื่องใช้ไฟฟ้า: ตรงกับสีในกราฟและยังอ่านชื่ออุปกรณ์ได้ชัด */
+.device-icon-ac { background: #1b3524; color: #8fe3a8; }
+.device-icon-lights { background: #392b17; color: #ffc66e; }
+.device-icon-tv { background: #1b2c3c; color: #9bccff; }
+.device-icon-fridge { background: #30243d; color: #d4b8ff; }
+.device-icon-washer { background: #173532; color: #73e3d9; }
+
+.device-info-ac b, .energy-category-ac { color: #8fe3a8; }
+.device-info-lights b, .energy-category-lights { color: #ffc66e; }
+.device-info-tv b, .energy-category-tv { color: #9bccff; }
+.device-info-fridge b, .energy-category-fridge { color: #d4b8ff; }
+.device-info-washer b, .energy-category-washer { color: #73e3d9; }
+
+.energy-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.energy-color-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px color-mix(in srgb, currentColor 35%, transparent);
+}
+.legend-device-on { background: #75e69a; box-shadow: 0 0 8px rgba(117, 230, 154, .5); }
+
+/* แผงสถานการณ์และเซ็นเซอร์สำหรับทดลองระบบอัตโนมัติ */
+.simulation-panel {
+  margin-top: 24px;
+  padding: 22px 24px;
+  scroll-margin-top: 24px;
+}
+
+.simulation-heading { align-items: flex-start; }
+.simulation-heading .panel-subtitle { margin: 6px 0 0; }
+
+.simulation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid #3b6746;
+  border-radius: 999px;
+  background: #173522;
+  color: #a9f2bd;
+  font: 700 9px Manrope, sans-serif;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
+.simulation-badge .live-dot { width: 7px; height: 7px; }
+
+.simulation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.simulation-scenes,
+.simulation-automation {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #2b4032;
+  border-radius: 12px;
+  background: #0d1510;
+}
+
+.simulation-scenes h3,
+.simulation-automation h3 {
+  margin: 0 0 12px;
+  color: #e9f4ec;
+  font-size: 13px;
+}
+
+.scene-buttons,
+.simulation-trigger-buttons { display: grid; gap: 8px; }
+
+.scene-button,
+.trigger-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid #2b4032;
+  border-radius: 9px;
+  background: #142019;
+  color: #e8f1ea;
+  text-align: left;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.scene-button:hover,
+.trigger-button:hover { background: #1a2b20; border-color: #54775b; }
+.scene-button:active,
+.trigger-button:active { transform: translateY(1px); }
+
+.scene-button[aria-pressed="true"] {
+  border-color: #64cf85;
+  background: linear-gradient(105deg, #1b3d27, #14231a);
+  box-shadow: inset 3px 0 #68e599, 0 0 0 1px rgba(104, 229, 153, .1);
+}
+
+.scene-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 9px;
+}
+
+.scene-icon svg, .trigger-button svg { width: 18px; height: 18px; }
+.scene-home { background: #1b3524; color: #8fe3a8; }
+.scene-away { background: #1b2c3c; color: #9bccff; }
+.scene-night { background: #30243d; color: #d4b8ff; }
+
+.scene-button > span:last-child,
+.trigger-button > span { display: grid; gap: 3px; }
+.scene-button b, .trigger-button b { color: inherit; font-size: 12px; }
+.scene-button small, .trigger-button small { color: #b3c4b8; font-size: 10px; }
+
+.trigger-button { min-height: 61px; }
+.trigger-button > svg { color: #ffc66e; }
+.trigger-button:nth-child(2) > svg { color: #ff9878; }
+
+.simulation-result {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 12px 13px;
+  border-left: 3px solid #55d889;
+  border-radius: 0 8px 8px 0;
+  background: #152019;
+}
+
+.result-label { color: #b3c4b8; font-size: 10px; }
+.simulation-result > b { color: #a9f2bd; font-size: 12px; }
+.simulation-log { min-height: 35px; color: #d5e3d8; font-size: 11px; line-height: 1.6; }
+.simulation-disclaimer { margin: 12px 0 0; color: #b3c4b8; font-size: 10px; }
+
+@media (max-width: 850px) {
+  .simulation-grid { grid-template-columns: 1fr; }
+}

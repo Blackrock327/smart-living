@@ -7,10 +7,8 @@
   <meta name="description" content="แดชบอร์ด Smart Living สำหรับดูแปลนบ้านและรายการอุปกรณ์ในแต่ละห้อง">
   <title>Smart Living | Home Systems</title>
   <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
-  <link rel="stylesheet" href="style.css?v=11">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
-  <script src="script.js?v=11" defer></script>
+  <link rel="stylesheet" href="style.css?v=15">
+  <script src="script.js?v=15" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -25,6 +23,7 @@
         <a class="nav-item" href="#floor-plan"><i class="nav-icon" data-lucide="panels-top-left" aria-hidden="true"></i> แปลนและห้อง</a>
         <a class="nav-item" href="#equipment"><i class="nav-icon" data-lucide="plug" aria-hidden="true"></i> อุปกรณ์</a>
         <a class="nav-item" href="#energy"><i class="nav-icon" data-lucide="zap" aria-hidden="true"></i> พลังงาน</a>
+        <a class="nav-item" href="#simulation"><i class="nav-icon" data-lucide="workflow" aria-hidden="true"></i> ทดลองระบบ</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="home-card"><span class="home-card-icon"><i data-lucide="house" aria-hidden="true"></i></span><div><b>บ้านพักอาศัย</b><small>แปลนอ้างอิง · ชั้นเดียว</small></div><span class="live-dot"></span></div>
@@ -52,8 +51,8 @@
 
       <section id="floor-plan" class="content-grid">
         <article class="panel plan-panel">
-          <div class="panel-heading"><div><div class="section-kicker">SPATIAL OVERVIEW</div><h2>แปลนบ้าน</h2><p class="panel-subtitle">เลือกห้องเพื่อซูมดูพื้นที่นั้น · กด “ดูทั้งแปลน” เพื่อกลับ</p></div><div class="plan-tools"><span class="approx-tag"><i data-lucide="map-pin" aria-hidden="true"></i> แปลนประมาณ</span><button class="small-button" id="showAllRooms" type="button">ดูทั้งแปลน <i data-lucide="maximize-2" aria-hidden="true"></i></button></div></div>
-          <div class="plan-canvas"><div class="north-mark"><span>N</span><i>↑</i></div><object id="floorPlan" data="floor-plan.svg?v=2" type="image/svg+xml" aria-label="แปลนบ้านแบบคลิกเลือกห้องได้"><div class="object-fallback">เปิดแปลนไม่ได้ ตรวจสอบว่า floor-plan.svg อยู่โฟลเดอร์เดียวกัน</div></object><div class="plan-legend"><span><i class="legend-dot legend-bedroom"></i> ห้องนอน</span><span><i class="legend-dot legend-service"></i> พื้นที่บริการ</span><span><i class="legend-dot legend-common"></i> พื้นที่ส่วนกลาง</span></div></div>
+          <div class="panel-heading"><div><div class="section-kicker">SPATIAL OVERVIEW</div><h2>แปลนบ้าน</h2><p class="panel-subtitle">คลิกห้องเพื่อซูม · คลิกห้องเดิมซ้ำเพื่อซูมออก</p></div><div class="plan-tools"><span class="approx-tag"><i data-lucide="map-pin" aria-hidden="true"></i> แปลนประมาณ</span><button class="small-button" id="showAllRooms" type="button">ดูทั้งแปลน <i data-lucide="maximize-2" aria-hidden="true"></i></button></div></div>
+          <div class="plan-canvas"><div class="north-mark"><span>N</span><i>↑</i></div><object id="floorPlan" data="floor-plan.svg?v=5" type="image/svg+xml" aria-label="แปลนบ้านแบบคลิกเลือกห้องและดูสถานะอุปกรณ์จำลองได้"><div class="object-fallback">เปิดแปลนไม่ได้ ตรวจสอบว่า floor-plan.svg อยู่โฟลเดอร์เดียวกัน</div></object><div class="plan-legend"><span><i class="legend-dot legend-bedroom"></i> ห้องนอน</span><span><i class="legend-dot legend-service"></i> พื้นที่บริการ</span><span><i class="legend-dot legend-common"></i> พื้นที่ส่วนกลาง</span><span><i class="legend-dot legend-device-on"></i> อุปกรณ์เปิด</span></div></div>
           <div class="dimension-strip"><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านยาว</small><b>12.50 <em>ม.</em></b></span></div><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านกว้าง</small><b>9.70 <em>ม.</em></b></span></div><div class="dimension-note">อ้างอิงตัวเลขที่อ่านได้จากแบบ PDF<br>ตำแหน่งและสัดส่วนในภาพเป็นค่าประมาณ</div></div>
         </article>
 
@@ -65,6 +64,35 @@
           <div class="usage-note"><span class="usage-note-icon"><i data-lucide="info" aria-hidden="true"></i></span><p><b>พลังงานในห้องนี้</b><br>แสดงค่าประมาณจากกำลังไฟและพฤติกรรมใช้งานตัวอย่าง ดูสมมติฐานและที่มาด้านล่าง</p></div>
           <div class="control-note"><span class="control-pulse"></span> ปุ่มสถานะด้านบนเป็นการสาธิตบนหน้าเว็บ ไม่ได้ควบคุมอุปกรณ์จริง</div>
         </aside>
+      </section>
+
+      <section id="simulation" class="panel simulation-panel" aria-labelledby="simulationTitle">
+        <div class="equipment-heading simulation-heading">
+          <div><div class="section-kicker">INTERACTIVE DEMO</div><h2 id="simulationTitle">ทดลองระบบจำลอง</h2><p class="panel-subtitle">เลือกสถานการณ์ แล้วลองกดเซ็นเซอร์เพื่อดูการตอบสนองของบ้าน</p></div>
+          <span class="simulation-badge"><i class="live-dot"></i> SIMULATION ONLY</span>
+        </div>
+        <div class="simulation-grid">
+          <div class="simulation-scenes">
+            <h3>สถานการณ์จำลอง</h3>
+            <div class="scene-buttons">
+              <button class="scene-button" type="button" data-scenario="home" aria-pressed="false"><span class="scene-icon scene-home"><i data-lucide="house" aria-hidden="true"></i></span><span><b>อยู่บ้าน</b><small>เปิดอุปกรณ์ตามการใช้งานปกติ</small></span></button>
+              <button class="scene-button" type="button" data-scenario="away" aria-pressed="false"><span class="scene-icon scene-away"><i data-lucide="door-open" aria-hidden="true"></i></span><span><b>ออกจากบ้าน</b><small>ปิดไฟและเครื่องใช้ เหลือตู้เย็น</small></span></button>
+              <button class="scene-button" type="button" data-scenario="night" aria-pressed="false"><span class="scene-icon scene-night"><i data-lucide="moon" aria-hidden="true"></i></span><span><b>กลางคืน</b><small>เปิดแอร์ห้องนอนและไฟพื้นที่พักผ่อน</small></span></button>
+            </div>
+          </div>
+          <div class="simulation-automation">
+            <h3>ทดสอบเซ็นเซอร์และกฎอัตโนมัติ</h3>
+            <div class="simulation-trigger-buttons">
+              <button class="trigger-button" id="simulateMotion" type="button"><i data-lucide="scan-eye" aria-hidden="true"></i><span><b>ตรวจพบการเคลื่อนไหว</b><small>เปิดไฟห้องโถง ถ้ามีคนอยู่บ้าน</small></span></button>
+              <button class="trigger-button" id="simulateHeat" type="button"><i data-lucide="thermometer" aria-hidden="true"></i><span><b>อุณหภูมิสูงกว่า 28°C</b><small>เปิดแอร์ห้องนอน ถ้าไม่ได้อยู่โหมดออกจากบ้าน</small></span></button>
+            </div>
+            <div class="simulation-result" aria-live="polite">
+              <span class="result-label">สถานะสถานการณ์</span><b id="activeScenarioLabel">ปรับอุปกรณ์เอง</b>
+              <div class="simulation-log" id="simulationLog">เลือกสถานการณ์ หรือกดปุ่มเซ็นเซอร์เพื่อเริ่มทดลอง</div>
+            </div>
+          </div>
+        </div>
+        <p class="simulation-disclaimer">ข้อมูลและการทำงานในส่วนนี้เป็นการสาธิตบนเว็บ ไม่เชื่อมต่อเซ็นเซอร์หรือควบคุมอุปกรณ์จริง</p>
       </section>
 
       <section id="equipment" class="panel equipment-panel">
@@ -117,12 +145,12 @@
             <div class="live-stat"><span>กำลังไฟขณะนี้</span><strong><span id="livePowerNow">—</span> <small>kW</small></strong></div>
             <div class="live-stat"><span>อุปกรณ์ที่เปิดอยู่</span><strong id="liveActiveDevices">—</strong></div>
           </div>
-          <div class="live-chart-wrap"><canvas id="liveEnergyChart" role="img" aria-label="กราฟจำลองพลังงานสะสมรายวันย้อนหลังเจ็ดวัน"></canvas></div>
-          <div class="live-energy-foot"><span>ย้อนหลัง 7 วัน · ค่าก่อนหน้าเป็นข้อมูลจำลอง</span><span>อัปเดตล่าสุด <b id="liveUpdatedAt">—</b></span></div>
+          <div class="live-chart-wrap"><canvas id="liveEnergyChart" role="img" aria-label="กราฟจำลองพลังงานสะสมรายวันย้อนหลังเจ็ดวัน"></canvas><p id="liveEnergyChartFallback" class="chart-fallback" role="status" hidden>กราฟยังโหลดไม่สำเร็จ แต่ค่าพลังงานจำลองและการคำนวณยังใช้งานได้</p></div>
+          <div class="live-energy-foot"><span>ย้อนหลัง 7 วัน · ค่าก่อนหน้าเป็นข้อมูลจำลอง</span><span>อัปเดตล่าสุด <time id="liveUpdatedAt">—</time></span></div>
         </div>
         <div class="energy-chart-card">
           <div class="energy-chart-heading"><div><b>ใช้ไฟโดยประมาณแยกตามอุปกรณ์</b><small>ปรับตามสถานะสวิตช์ในหน้าเว็บ · kWh ต่อเดือน</small></div><span>kWh / เดือน</span></div>
-          <div class="energy-chart-wrap"><canvas id="energyChart" role="img" aria-label="กราฟแท่งแสดงพลังงานไฟฟ้าประมาณต่อเดือน แยกตามประเภทเครื่องใช้ไฟฟ้า"></canvas><p id="energyChartFallback" class="chart-fallback" hidden>โหลดกราฟไม่ได้ โปรดเชื่อมต่ออินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ</p></div>
+          <div class="energy-chart-wrap"><canvas id="energyChart" role="img" aria-label="กราฟแท่งแสดงพลังงานไฟฟ้าประมาณต่อเดือน แยกตามประเภทเครื่องใช้ไฟฟ้า"></canvas><p id="energyChartFallback" class="chart-fallback" role="status" hidden>กราฟยังโหลดไม่สำเร็จ แต่ตารางพลังงานด้านล่างยังแสดงข้อมูลได้</p></div>
         </div>
         <div class="equipment-table-wrap energy-table-wrap">
           <table class="energy-table"><thead><tr><th>เครื่องใช้ไฟฟ้าที่เปิด</th><th>จำนวนเปิด</th><th>กำลังไฟเฉลี่ย/เครื่อง</th><th>เวลาใช้งานตัวอย่าง</th><th>ประมาณ kWh/เดือน</th></tr></thead><tbody id="energyRows"></tbody></table>

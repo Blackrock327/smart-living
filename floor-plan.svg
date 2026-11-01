@@ -33,6 +33,13 @@
       .window-line{stroke:#626a63;stroke-width:1}
       .symbol{fill:#fff;stroke:#303631;stroke-width:1.25}
       .symbol-text{font:9px Arial,sans-serif;fill:#343a35;text-anchor:middle;dominant-baseline:middle}
+      .device-state-marker{pointer-events:none}
+      .state-marker-background{fill:#173522;stroke:#55a96e;stroke-width:1}
+      .state-marker-dot{fill:#75e69a}
+      .state-marker-text{font:700 8px Arial,sans-serif;fill:#eaffef;dominant-baseline:middle}
+      .device-state-marker.all-off .state-marker-background{fill:#28322b;stroke:#647168}
+      .device-state-marker.all-off .state-marker-dot{fill:#89978e}
+      .device-state-marker.all-off .state-marker-text{fill:#d3ddd5}
     </style>
     <g id="column"><rect class="column" x="-9" y="-9" width="18" height="18"/><rect class="column-core" x="-4" y="-4" width="8" height="8"/></g>
     <g id="windowHorizontal"><rect class="window" x="-31" y="-4" width="62" height="8"/><path class="window-line" d="M-27 0H27M0-4V4"/></g>
@@ -145,4 +152,13 @@
     <path class="symbol" d="M706 1101 721 1116 706 1131 691 1116Z"/><text class="symbol-text" x="706" y="1117">A</text>
     <text class="room-level" x="565" y="1270">แบบแปลนพื้น · ถอดรายละเอียดจาก PDF ต้นฉบับ · สัดส่วนแสดงเพื่อการดูบนเว็บไซต์</text>
   </g>
+
+  <!-- Live simulated device counts, updated by the page controls. -->
+  <g class="device-state-marker" data-room-status="kitchen" transform="translate(462 333)" aria-label="สถานะอุปกรณ์ห้องครัว"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="bedroom2" transform="translate(457 405)" aria-label="สถานะอุปกรณ์ห้องนอน 2"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="bathroom1" transform="translate(640 306)" aria-label="สถานะอุปกรณ์ห้องน้ำ 1"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="bedroom3" transform="translate(808 411)" aria-label="สถานะอุปกรณ์ห้องนอน 3"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="bathroom2" transform="translate(454 600)" aria-label="สถานะอุปกรณ์ห้องน้ำ 2"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="bedroom1" transform="translate(457 698)" aria-label="สถานะอุปกรณ์ห้องนอน 1"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
+  <g class="device-state-marker" data-room-status="living" transform="translate(805 637)" aria-label="สถานะอุปกรณ์ห้องโถง"><rect class="state-marker-background" width="48" height="18" rx="9"/><circle class="state-marker-dot" cx="8" cy="9" r="3"/><text class="state-marker-text" x="15" y="9">ON 0</text></g>
 </svg>

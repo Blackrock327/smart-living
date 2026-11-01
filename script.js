@@ -18,6 +18,13 @@ const deviceInfo = {
 };
 
 const order = ['ac', 'lights', 'tv', 'fridge', 'washer'];
+const devicePalette = {
+  ac: { chart: '#86b894' },
+  lights: { chart: '#e5b65d' },
+  tv: { chart: '#83a9d1' },
+  fridge: { chart: '#b6a1d2' },
+  washer: { chart: '#6db8b0' }
+};
 
 // ค่าตั้งต้นตัวอย่าง ไม่ใช่สเปกของรุ่นจริง (แก้ได้ที่ watts และการใช้งานด้านล่าง)
 const energyModel = {
@@ -30,6 +37,7 @@ const energyModel = {
 const storageKey = 'smartliving-blueprint-device-status-v1';
 const liveEnergyStorageKey = 'smartliving-blueprint-live-energy-v1';
 const billSettingsStorageKey = 'smartliving-blueprint-bill-settings-v1';
+const scenarioStorageKey = 'smartliving-blueprint-scenario-v1';
 const defaultFtRate = 0.1623;
 const monthlyServiceCharges = { lowUse: 8.19, regular: 24.62 };
 let energyChart = null;
@@ -56,8 +64,51 @@ function keyFor(roomId, type) { return `${roomId}:${type}`; }
 function isOn(roomId, type) { return status[keyFor(roomId, type)] !== false; }
 function roomById(id) { return rooms.find(room => room.id === id); }
 
+function updatePlanDeviceMarkers() {
+  const doc = document.querySelector('#floorPlan')?.contentDocument;
+  if (!doc) return;
+  doc.querySelectorAll('[data-room-status]').forEach(marker => {
+    const room = roomById(marker.getAttribute('data-room-status'));
+    if (!room) return;
+    const total = roomTotal(room);
+    const active = order.reduce((sum, type) => sum + (isOn(room.id, type) ? quantity(room, type) : 0), 0);
+    marker.classList.toggle('all-off', active === 0);
+    marker.querySelector('.state-marker-text').textContent = active ? `ON ${active}/${total}` : 'OFF';
+    marker.setAttribute('aria-label', `${room.name}: เปิด ${active} จาก ${total} อุปกรณ์`);
+  });
+}
+
 function renderIcons(root = document) {
-  if (window.lucide) window.lucide.createIcons({ root, attrs: { 'stroke-width': 1.8 } });
+  if (window.lucide?.createIcons) {
+    root.querySelectorAll?.('[data-lucide].icon-fallback').forEach(node => {
+      node.classList.remove('icon-fallback');
+      node.textContent = '';
+    });
+    window.lucide.createIcons({ root, attrs: { 'stroke-width': 1.8 } });
+    return;
+  }
+
+  const glyphs = {
+    activity: '⌁', cpu: '▦', ellipsis: '⋯', 'file-spreadsheet': '▤', house: '⌂',
+    info: 'i', 'layout-dashboard': '▦', lightbulb: '◉', map: '⌖', 'map-pin': '⌖',
+    'maximize-2': '⛶', 'panels-top-left': '▣', plug: '↯', 'rotate-ccw': '↶',
+    'door-open': '⇥', moon: '☾', 'scan-eye': '◉', thermometer: '♨', workflow: '⌘',
+    wind: '≋', zap: 'ϟ', bed: '▰', sofa: '▰', tv: '▣', refrigerator: '▤',
+    'washing-machine': '◉'
+  };
+  root.querySelectorAll?.('[data-lucide]').forEach(node => {
+    node.classList.add('icon-fallback');
+    node.textContent = glyphs[node.dataset.lucide] || '•';
+  });
+}
+
+function loadOptionalLibrary(url, onLoad) {
+  const script = document.createElement('script');
+  script.src = url;
+  script.async = true;
+  script.onload = onLoad;
+  script.onerror = () => console.info(`Optional visual library unavailable: ${url}`);
+  document.head.append(script);
 }
 
 function estimatedKwh(room, type) {
@@ -92,6 +143,8 @@ function renderRoom() {
   const shown = order.map(type => ({ type, qty: scope.reduce((sum, item) => sum + quantity(item, type), 0) })).filter(item => item.qty > 0);
   if (!shown.length) {
     container.innerHTML = '<div class="empty-state">ห้องนี้ไม่มีรายการอุปกรณ์ในตาราง</div>';
+    renderIcons(document.querySelector('#roomIcon'));
+    updatePlanDeviceMarkers();
     return;
   }
   shown.forEach(({ type, qty }) => {
@@ -105,16 +158,104 @@ function renderRoom() {
     const row = document.createElement('div');
     row.className = 'device-row';
     const ariaState = allOn ? 'true' : anyOn ? 'mixed' : 'false';
-    row.innerHTML = `<div class="device-info"><span class="device-icon" aria-hidden="true"><i data-lucide="${info.icon}"></i></span><span><b>${info.name}</b><small>${scopeName} · ${stateText} · ~${estimateForScope(scope, type).toFixed(1)} kWh/เดือน</small></span></div><div class="device-action"><span class="device-qty">${qty}</span><button class="toggle" type="button" role="switch" aria-checked="${ariaState}" aria-label="${allOn ? 'ปิด' : 'เปิด'}${info.name}${isGroup ? 'ทุกพื้นที่' : ''}" data-toggle-type="${type}" data-toggle-room="${room ? room.id : 'all'}"></button></div>`;
+    row.innerHTML = `<div class="device-info device-info-${type}"><span class="device-icon device-icon-${type}" aria-hidden="true"><i data-lucide="${info.icon}"></i></span><span><b>${info.name}</b><small>${scopeName} · ${stateText} · ~${estimateForScope(scope, type).toFixed(1)} kWh/เดือน</small></span></div><div class="device-action"><span class="device-qty">${qty}</span><button class="toggle" type="button" role="switch" aria-checked="${ariaState}" aria-label="${allOn ? 'ปิด' : 'เปิด'}${info.name}${isGroup ? 'ทุกพื้นที่' : ''}" data-toggle-type="${type}" data-toggle-room="${room ? room.id : 'all'}"></button></div>`;
     container.append(row);
   });
   renderIcons(container);
+  renderIcons(document.querySelector('#roomIcon'));
+  updatePlanDeviceMarkers();
+}
+
+const scenarioNames = {
+  home: 'อยู่บ้าน',
+  away: 'ออกจากบ้าน',
+  night: 'กลางคืน',
+  custom: 'ปรับอุปกรณ์เอง'
+};
+let selectedScenario = 'custom';
+
+function loadSelectedScenario() {
+  try {
+    const saved = localStorage.getItem(scenarioStorageKey);
+    return Object.hasOwn(scenarioNames, saved) ? saved : 'custom';
+  } catch {
+    return 'custom';
+  }
+}
+
+function saveSelectedScenario() {
+  try { localStorage.setItem(scenarioStorageKey, selectedScenario); } catch { /* การจำลองยังทำงานได้หากบันทึกไม่ได้ */ }
+}
+
+function renderScenarioState() {
+  document.querySelector('#activeScenarioLabel').textContent = scenarioNames[selectedScenario];
+  document.querySelectorAll('[data-scenario]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.scenario === selectedScenario));
+  });
+}
+
+function showSimulationEvent(message) {
+  document.querySelector('#simulationLog').textContent = `${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} · ${message}`;
+}
+
+function refreshSimulationView() {
+  saveStatus();
+  renderRoom();
+  renderEnergy();
+  updateLiveEnergy();
+  renderScenarioState();
+}
+
+function applyScenario(scenario) {
+  selectedScenario = scenario;
+  saveSelectedScenario();
+  rooms.forEach(room => {
+    order.forEach(type => {
+      if (!quantity(room, type)) return;
+      let isEnabled = true;
+      if (scenario === 'away') isEnabled = type === 'fridge';
+      if (scenario === 'home') {
+        isEnabled = type === 'fridge'
+          || type === 'tv'
+          || (type === 'ac' && room.id === 'bedroom1')
+          || (type === 'lights' && room.id === 'kitchen');
+      }
+      if (scenario === 'night') {
+        isEnabled = type === 'fridge'
+          || (type === 'ac' && ['bedroom1', 'bedroom2'].includes(room.id))
+          || (type === 'lights' && ['bedroom1', 'bedroom2'].includes(room.id));
+      }
+      status[keyFor(room.id, type)] = isEnabled;
+    });
+  });
+  refreshSimulationView();
+  showSimulationEvent(`ใช้สถานการณ์ “${scenarioNames[scenario]}” แล้ว สถานะอุปกรณ์และพลังงานถูกปรับตามฉาก`);
+}
+
+function simulateSensor(sensor) {
+  if (selectedScenario === 'away') {
+    showSimulationEvent('ตรวจพบเหตุการณ์ แต่เงื่อนไขโหมดออกจากบ้านไม่อนุญาตให้เปิดอุปกรณ์');
+    return;
+  }
+
+  if (sensor === 'motion') {
+    status[keyFor('living', 'lights')] = true;
+    refreshSimulationView();
+    showSimulationEvent('เซ็นเซอร์พบการเคลื่อนไหว → เปิดไฟพื้นที่ห้องโถง');
+    return;
+  }
+
+  rooms.filter(room => room.kind === 'bedroom').forEach(room => {
+    status[keyFor(room.id, 'ac')] = true;
+  });
+  refreshSimulationView();
+  showSimulationEvent('อุณหภูมิเกิน 28°C → เปิดเครื่องปรับอากาศในห้องนอน');
 }
 
 function renderInventory() {
   const totals = Object.fromEntries(order.map(type => [type, rooms.reduce((sum, room) => sum + quantity(room, type), 0)]));
   const body = document.querySelector('#inventoryRows');
-  body.innerHTML = order.filter(type => totals[type]).map(type => `<tr><td>${deviceInfo[type].name}</td><td><span class="qty-badge">${totals[type]} รายการ</span></td><td>อยู่ในรายการอุปกรณ์</td><td>ดูค่าประมาณด้านล่าง</td></tr>`).join('');
+  body.innerHTML = order.filter(type => totals[type]).map(type => `<tr><td><span class="energy-category energy-category-${type}"><i class="energy-color-dot" aria-hidden="true"></i>${deviceInfo[type].name}</span></td><td><span class="qty-badge">${totals[type]} รายการ</span></td><td>อยู่ในรายการอุปกรณ์</td><td>ดูค่าประมาณด้านล่าง</td></tr>`).join('');
 }
 
 function renderEnergy() {
@@ -129,7 +270,7 @@ function renderEnergy() {
   renderBillEstimate(total);
   document.querySelector('#energyRows').innerHTML = energyTotals.map(item => {
     const model = energyModel[item.type];
-    return `<tr><td>${deviceInfo[item.type].name}</td><td>${item.quantity}</td><td>${model.watts.toLocaleString('th-TH')} W</td><td>${model.usage}</td><td><strong>${item.kwh.toFixed(1)}</strong></td></tr>`;
+    return `<tr><td><span class="energy-category energy-category-${item.type}"><i class="energy-color-dot" aria-hidden="true"></i>${deviceInfo[item.type].name}</span></td><td>${item.quantity}</td><td>${model.watts.toLocaleString('th-TH')} W</td><td>${model.usage}</td><td><strong>${item.kwh.toFixed(1)}</strong></td></tr>`;
   }).join('');
   renderEnergyChart(energyTotals);
 }
@@ -198,18 +339,27 @@ function renderEnergyChart(energyTotals) {
     if (canvas) canvas.hidden = true;
     return;
   }
-  canvas.hidden = false;
-  if (fallback) fallback.hidden = true;
-  if (energyChart) energyChart.destroy();
+  const labels = energyTotals.map(item => deviceInfo[item.type].name);
+  const values = energyTotals.map(item => Number(item.kwh.toFixed(1)));
+  if (energyChart) {
+    energyChart.data.labels = labels;
+    energyChart.data.datasets[0].data = values;
+    energyChart.data.datasets[0].backgroundColor = energyTotals.map(item => devicePalette[item.type].chart);
+    energyChart.update('none');
+    if (fallback) fallback.hidden = true;
+    canvas.hidden = false;
+    return;
+  }
 
-  energyChart = new Chart(canvas, {
+  try {
+    energyChart = new Chart(canvas, {
     type: 'bar',
     data: {
-      labels: energyTotals.map(item => deviceInfo[item.type].name),
+      labels,
       datasets: [{
         label: 'ประมาณการใช้ไฟ',
-        data: energyTotals.map(item => Number(item.kwh.toFixed(1))),
-        backgroundColor: ['#86b894', '#e5b65d', '#83a9d1', '#b6a1d2', '#6db8b0'],
+        data: values,
+        backgroundColor: energyTotals.map(item => devicePalette[item.type].chart),
         borderRadius: 6,
         borderSkipped: false,
         maxBarThickness: 30
@@ -240,7 +390,13 @@ function renderEnergyChart(energyTotals) {
         }
       }
     }
-  });
+    });
+    canvas.hidden = false;
+    if (fallback) fallback.hidden = true;
+  } catch {
+    canvas.hidden = true;
+    if (fallback) fallback.hidden = false;
+  }
 }
 
 function localDateKey(date) {
@@ -315,8 +471,14 @@ function activePowerWatts() {
 
 function createLiveEnergyChart() {
   const canvas = document.querySelector('#liveEnergyChart');
-  if (!canvas || typeof Chart === 'undefined') return;
-  liveEnergyChart = new Chart(canvas, {
+  const fallback = document.querySelector('#liveEnergyChartFallback');
+  if (!canvas || typeof Chart === 'undefined') {
+    if (fallback) fallback.hidden = false;
+    if (canvas) canvas.hidden = true;
+    return;
+  }
+  try {
+    liveEnergyChart = new Chart(canvas, {
     type: 'line',
     data: {
       labels: liveEnergyState.history.map(day => new Date(`${day.date}T12:00:00`).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })),
@@ -343,7 +505,13 @@ function createLiveEnergyChart() {
         y: { beginAtZero: true, title: { display: true, text: 'kWh / วัน', color: '#aab7ae' }, grid: { color: 'rgba(163, 184, 169, .12)' }, ticks: { color: '#aab7ae' } }
       }
     }
-  });
+    });
+    canvas.hidden = false;
+    if (fallback) fallback.hidden = true;
+  } catch {
+    canvas.hidden = true;
+    if (fallback) fallback.hidden = false;
+  }
 }
 
 function updateLiveEnergy() {
@@ -371,7 +539,9 @@ function updateLiveEnergy() {
   document.querySelector('#liveTodayKwh').textContent = liveEnergyState.todayKwh.toFixed(3);
   document.querySelector('#livePowerNow').textContent = (simulatedWatts / 1000).toFixed(2);
   document.querySelector('#liveActiveDevices').textContent = `${activeDevices} / ${totalDevices}`;
-  document.querySelector('#liveUpdatedAt').textContent = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const updatedAt = document.querySelector('#liveUpdatedAt');
+  updatedAt.textContent = now.toLocaleString('th-TH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  updatedAt.dateTime = now.toISOString();
 
   if (liveEnergyChart && now.getTime() - lastLiveChartUpdate >= 3600000) {
     liveEnergyChart.data.datasets[0].data = liveEnergyState.history.map(day => Number(day.kwh.toFixed(3)));
@@ -385,6 +555,7 @@ function updateLiveEnergy() {
 }
 
 let planZoomFrame = 0;
+let isPlanZoomed = false;
 const fullPlanViewBox = [0, 0, 1115, 1285];
 
 function setPlanViewBox(roomId) {
@@ -423,7 +594,14 @@ function setPlanViewBox(roomId) {
 }
 
 function setSelection(roomId) {
+  if (roomId !== 'all' && roomId === selectedRoom) {
+    isPlanZoomed = !isPlanZoomed;
+    setPlanViewBox(isPlanZoomed ? roomId : 'all');
+    return;
+  }
+
   selectedRoom = roomId;
+  isPlanZoomed = roomId !== 'all';
   renderRoom();
   const object = document.querySelector('#floorPlan');
   const doc = object?.contentDocument;
@@ -432,7 +610,7 @@ function setSelection(roomId) {
     node.classList.toggle('selected', selected);
     node.setAttribute('aria-pressed', String(selected));
   });
-  setPlanViewBox(roomId);
+  setPlanViewBox(isPlanZoomed ? roomId : 'all');
 }
 
 function connectPlan() {
@@ -464,6 +642,23 @@ document.addEventListener('click', event => {
     renderRoom();
     renderEnergy();
     updateLiveEnergy();
+    selectedScenario = 'custom';
+    saveSelectedScenario();
+    renderScenarioState();
+    showSimulationEvent(`ปรับ${deviceInfo[type].name}เป็น${turnOn ? 'เปิด' : 'ปิด'}ด้วยตนเอง`);
+    return;
+  }
+  const scenarioButton = event.target.closest('[data-scenario]');
+  if (scenarioButton) {
+    applyScenario(scenarioButton.dataset.scenario);
+    return;
+  }
+  if (event.target.closest('#simulateMotion')) {
+    simulateSensor('motion');
+    return;
+  }
+  if (event.target.closest('#simulateHeat')) {
+    simulateSensor('heat');
     return;
   }
   if (event.target.closest('#showAllRooms')) setSelection('all');
@@ -473,6 +668,10 @@ document.addEventListener('click', event => {
     renderRoom();
     renderEnergy();
     updateLiveEnergy();
+    selectedScenario = 'custom';
+    saveSelectedScenario();
+    renderScenarioState();
+    showSimulationEvent('คืนค่าสถานะอุปกรณ์เริ่มต้นแล้ว');
   }
 });
 
@@ -483,11 +682,22 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRoom();
   renderInventory();
   renderEnergy();
+  selectedScenario = loadSelectedScenario();
+  renderScenarioState();
   liveEnergyState = createLiveEnergyState();
   createLiveEnergyChart();
   updateLiveEnergy();
   window.setInterval(updateLiveEnergy, 3600000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateLiveEnergy();
+  });
   window.addEventListener('pagehide', saveLiveEnergyState);
+  loadOptionalLibrary('https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js', () => {
+    renderEnergy();
+    createLiveEnergyChart();
+    updateLiveEnergy();
+  });
+  loadOptionalLibrary('https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js', () => renderIcons());
   document.querySelector('#billRateType').addEventListener('change', () => {
     saveBillSettings();
     renderBillEstimate(Number(document.querySelector('#energyTotal').textContent) || 0);
