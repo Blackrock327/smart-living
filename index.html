@@ -7,8 +7,8 @@
   <meta name="description" content="เครื่องจำลองการใช้ไฟของบ้านตามช่วงเวลาและรูปแบบการใช้งาน">
   <title>Smart Living | Energy Simulator</title>
   <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
-    <link rel="stylesheet" href="style.css?v=25">
-    <script src="script.js?v=30" defer></script>
+    <link rel="stylesheet" href="style.css?v=27">
+    <script src="script.js?v=32" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -56,6 +56,7 @@
         </div>
         <div class="simulation-grid">
           <div class="simulation-timeline">
+            <div class="simulation-section-heading simulation-input-heading" id="simulationInputTitle"><span class="simulation-section-number">01</span><div><b>ควบคุมช่วงเวลา</b><small>เลือกช่วงจำลอง เลื่อนเวลา และเริ่มหรือหยุดการเล่น</small></div><span class="simulation-section-tag">CONTROL</span></div>
             <div class="simulation-toolbar">
               <div class="simulation-clock"><span id="simulationClockLabel">เวลาจำลอง</span><strong id="simulationClock">00:00</strong><small id="simulationDateLabel"></small><small id="simulationProfileLabel">วันธรรมดา</small></div>
               <div class="simulation-play-controls">
@@ -76,17 +77,21 @@
               <input id="simulationDay" type="range" min="0" max="29" step="1" value="0" aria-label="เลื่อนวันที่ในช่วงที่เลือก">
               <div class="timeline-ticks" id="periodTimelineTicks"></div>
             </div>
-            <div class="simulation-metrics">
-              <article class="simulation-metric"><span>กำลังไฟ ณ เวลานี้</span><strong><b id="simulationPower">0.00</b><small>kW</small></strong></article>
-              <article class="simulation-metric"><span id="simulationAccumulatedLabel">หน่วยสะสมถึงเวลานี้</span><strong><b id="simulationAccumulated">0.00</b><small>kWh</small></strong></article>
-              <article class="simulation-metric"><span id="simulationPeriodEnergyLabel">พลังงานคาดการณ์ทั้งวัน</span><strong><b id="simulationDailyTotal">0.00</b><small>kWh</small></strong></article>
-              <article class="simulation-metric simulation-metric-cost"><span id="simulationCostLabel">ค่าไฟคาดการณ์ 30 วัน</span><strong><b id="simulationMonthlyCost">0.00</b><small>บาท</small></strong></article>
-            </div>
-            <div class="simulation-chart-wrap"><canvas id="simulationChart" role="img" aria-label="กราฟแสดงกำลังไฟจำลองแยกตามชั่วโมงตลอด 24 ชั่วโมง"></canvas><p id="simulationChartFallback" class="chart-fallback" role="status" hidden>กราฟโหลดไม่สำเร็จ แต่ค่าพลังงานและตารางอุปกรณ์ยังคำนวณได้</p></div>
-            <div class="simulation-save-row"><button class="small-button save-history-button" id="saveMonthlyResult" type="button"><i data-lucide="save" aria-hidden="true"></i> บันทึกผลประจำเดือน</button><span id="historySaveStatus" role="status" aria-live="polite">เลือกช่วงเวลา “รายเดือน” เพื่อบันทึกผล</span></div>
-            <p class="simulation-footnote" id="simulationFootnote">รายวัน: 1 วินาที = 1 ชั่วโมงจำลอง · เดือน/ปี: 1 วินาที = 1 วัน · รูปแบบการใช้ไฟที่เลือกใช้ซ้ำในแต่ละวัน</p>
+            <section class="simulation-output-card" aria-labelledby="simulationOutputTitle">
+              <div class="simulation-section-heading" id="simulationOutputTitle"><span class="simulation-section-number output-number">02</span><div><b>ผลลัพธ์การจำลอง</b><small>กำลังไฟ หน่วยสะสม ค่าใช้จ่าย และกราฟตามเวลาที่เลือก</small></div><span class="simulation-section-tag output-tag">OUTPUT</span></div>
+              <div class="simulation-metrics">
+                <article class="simulation-metric"><span>กำลังไฟ ณ เวลานี้</span><strong><b id="simulationPower">0.00</b><small>kW</small></strong></article>
+                <article class="simulation-metric"><span id="simulationAccumulatedLabel">หน่วยสะสมถึงเวลานี้</span><strong><b id="simulationAccumulated">0.00</b><small>kWh</small></strong></article>
+                <article class="simulation-metric"><span id="simulationPeriodEnergyLabel">พลังงานคาดการณ์ทั้งวัน</span><strong><b id="simulationDailyTotal">0.00</b><small>kWh</small></strong></article>
+                <article class="simulation-metric simulation-metric-cost"><span id="simulationCostLabel">ค่าไฟคาดการณ์ 30 วัน</span><strong><b id="simulationMonthlyCost">0.00</b><small>บาท</small></strong></article>
+              </div>
+              <div class="simulation-chart-wrap"><canvas id="simulationChart" role="img" aria-label="กราฟแสดงกำลังไฟจำลองแยกตามชั่วโมงตลอด 24 ชั่วโมง"></canvas><p id="simulationChartFallback" class="chart-fallback" role="status" hidden>กราฟโหลดไม่สำเร็จ แต่ค่าพลังงานและตารางอุปกรณ์ยังคำนวณได้</p></div>
+              <div class="simulation-save-row"><button class="small-button save-history-button" id="saveMonthlyResult" type="button"><i data-lucide="save" aria-hidden="true"></i><span>บันทึกผลประจำเดือน</span></button><span id="historySaveStatus" role="status" aria-live="polite">เลือกช่วงเวลา “รายเดือน” เพื่อบันทึกผล</span></div>
+              <p class="simulation-footnote" id="simulationFootnote">รายวัน: 1 วินาที = 1 ชั่วโมงจำลอง · เดือน/ปี: 1 วินาที = 1 วัน · รูปแบบการใช้ไฟที่เลือกใช้ซ้ำในแต่ละวัน</p>
+            </section>
           </div>
           <aside class="simulation-settings">
+            <div class="simulation-control-heading"><span>SIMULATION CONTROLS</span><b>รูปแบบและเหตุการณ์</b></div>
             <div class="simulation-scenes">
               <h3>รูปแบบการใช้ชีวิต</h3>
               <div class="scene-buttons">
@@ -94,6 +99,15 @@
                 <button class="scene-button" type="button" data-scenario="weekend" aria-pressed="false"><span class="scene-icon scene-night"><i data-lucide="sun" aria-hidden="true"></i></span><span><b>วันหยุด</b><small>ตื่นสายและอยู่บ้านนานขึ้น</small></span></button>
                 <button class="scene-button" type="button" data-scenario="away" aria-pressed="false"><span class="scene-icon scene-away"><i data-lucide="door-open" aria-hidden="true"></i></span><span><b>ไม่อยู่บ้าน</b><small>ปิดอุปกรณ์ เหลือตู้เย็นทำงาน</small></span></button>
               </div>
+            </div>
+            <div class="simulation-weather" aria-label="เลือกสภาพอากาศสำหรับการจำลอง">
+              <div class="weather-heading"><h3>สภาพอากาศจำลอง</h3><span>อุณหภูมิ (จำลอง) <b id="weatherTemperature">28°C</b></span></div>
+              <div class="weather-buttons">
+                <button class="weather-button active" type="button" data-weather="normal" aria-pressed="true"><span class="weather-emoji" aria-hidden="true">☁️</span><b>ปกติ</b></button>
+                <button class="weather-button" type="button" data-weather="sunny" aria-pressed="false"><span class="weather-emoji" aria-hidden="true">☀️</span><b>แดดจัด</b></button>
+                <button class="weather-button" type="button" data-weather="rainy" aria-pressed="false"><span class="weather-emoji" aria-hidden="true">🌧️</span><b>ฝนตก</b></button>
+              </div>
+              <p class="weather-summary" id="weatherSummary">โหลดเป็นไปตามตารางปกติ</p>
             </div>
             <div class="simulation-automation">
               <h3>ทดลองเหตุการณ์</h3>
@@ -191,6 +205,7 @@
       <footer class="footer"><span>SMART LIVING <i>·</i> ENGINEERING BLUEPRINT</span><span>ข้อมูลแสดงเพื่อสาธิตการจัดวางระบบบ้าน</span></footer>
     </main>
   </div>
+  <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>
 

@@ -49,10 +49,13 @@ let simulationChart = null;
 let selectedRoom = 'all';
 let status = readStatus();
 let selectedScenario = 'weekday';
+let selectedWeather = 'normal';
 let simulationRange = 'day';
 let simulationDayIndex = 0;
 let simulationHour = 0;
 let simulationTimer = null;
+let saveFeedbackTimer = null;
+let toastTimer = null;
 let timelineTickSignature = '';
 const simulationOverrides = new Set();
 
@@ -157,6 +160,11 @@ function isOn(roomId, type) { return status[keyFor(roomId, type)] !== false; }
 function roomById(id) { return rooms.find(room => room.id === id); }
 
 const scenarioNames = { weekday: 'วันธรรมดา', weekend: 'วันหยุด', away: 'ไม่อยู่บ้าน' };
+const weatherModes = {
+  normal: { name: 'ปกติ', temperature: 28 },
+  sunny: { name: 'แดดจัด', temperature: 31 },
+  rainy: { name: 'ฝนตก', temperature: 25 }
+};
 const scheduleWindows = {
   weekday: {
     ac: { bedroom1: [[0, 4], [22, 24]], bedroom2: [[0, 3], [21, 24]], bedroom3: [[0, 4], [22, 24]] },
@@ -188,13 +196,54 @@ function deviceScheduleFraction(room, type, hour, profile = selectedScenario, in
   return windows.some(([start, end]) => safeHour >= start && safeHour < end) ? 1 : 0;
 }
 
-function hourlySimulation(profile = selectedScenario, includeOverrides = true, dayIndex = simulationDayIndex) {
+function weatherAdjustedFraction(room, type, hour, baseFraction, profile, weather = selectedWeather) {
+  if (weather === 'sunny' && type === 'ac' && hour >= 12 && hour < 17 && profile !== 'away' && isOn(room.id, type)) {
+    return 1.25; // แดดจัด: เพิ่มเวลา/โหลดแอร์ในช่วงบ่าย
+  }
+  if (weather === 'rainy' && type === 'ac' && hour >= 12 && hour < 18) return baseFraction * 0.85;
+  if (weather === 'rainy' && type === 'lights' && hour >= 10 && hour < 18 && profile !== 'away' && isOn(room.id, type)) {
+    return Math.max(baseFraction, 0.25) * 1.2; // ฝนตก: เปิดไฟเพิ่มในบ้านช่วงกลางวัน
+  }
+  return baseFraction;
+}
+
+function hourlySimulation(profile = selectedScenario, includeOverrides = true, dayIndex = simulationDayIndex, weather = selectedWeather) {
   return Array.from({ length: 24 }, (_, hour) => {
     const watts = rooms.reduce((sum, room) => sum + order.reduce((roomSum, type) => {
-      return roomSum + energyModel[type].watts * quantity(room, type) * deviceScheduleFraction(room, type, hour, profile, includeOverrides, dayIndex);
+      const scheduledFraction = deviceScheduleFraction(room, type, hour, profile, includeOverrides, dayIndex);
+      const weatherFraction = weatherAdjustedFraction(room, type, hour, scheduledFraction, profile, weather);
+      return roomSum + energyModel[type].watts * quantity(room, type) * weatherFraction;
     }, 0), 0);
     return { hour, watts, kwh: watts / 1000 };
   });
+}
+
+function renderWeatherState() {
+  document.querySelectorAll('.weather-button').forEach(button => {
+    const selected = button.dataset.weather === selectedWeather;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+  const weather = weatherModes[selectedWeather] || weatherModes.normal;
+  document.querySelector('#weatherTemperature').textContent = `${weather.temperature}°C`;
+  document.querySelector('#weatherSummary').textContent = selectedWeather === 'sunny'
+    ? 'แดดจัด · เพิ่มเวลา/โหลดแอร์ช่วง 12:00–17:00'
+    : selectedWeather === 'rainy' ? 'ฝนตก · ลดโหลดแอร์ เพิ่มไฟช่วง 10:00–18:00' : 'โหลดเป็นไปตามตารางปกติ';
+}
+
+function selectWeather(weather) {
+  if (!Object.hasOwn(weatherModes, weather)) return;
+  selectedWeather = weather;
+  renderWeatherState();
+  renderEnergy();
+  renderSimulationView();
+  const messages = {
+    normal: 'อากาศปกติ · ใช้ตารางโหลดเดิม',
+    sunny: 'แดดจัด · อุณหภูมิจำลอง 31°C · เพิ่มเวลา/โหลดแอร์ช่วงบ่าย',
+    rainy: 'ฝนตก · อุณหภูมิจำลอง 25°C · ลดโหลดแอร์และเพิ่มการเปิดไฟช่วงกลางวัน'
+  };
+  showSimulationEvent(messages[selectedWeather]);
+  logSimulationHour(-1, simulationHour);
 }
 
 function dailyEnergyKwh(profile = selectedScenario) {
@@ -208,7 +257,10 @@ function updatePlanDeviceMarkers() {
     const room = roomById(marker.getAttribute('data-room-status'));
     if (!room) return;
     const total = roomTotal(room);
-    const active = order.reduce((sum, type) => sum + (deviceScheduleFraction(room, type, simulationHour) > 0 ? quantity(room, type) : 0), 0);
+    const active = order.reduce((sum, type) => {
+      const scheduled = deviceScheduleFraction(room, type, simulationHour);
+      return sum + (weatherAdjustedFraction(room, type, simulationHour, scheduled, selectedScenario) > 0 ? quantity(room, type) : 0);
+    }, 0);
     marker.classList.toggle('all-off', active === 0);
     marker.querySelector('.state-marker-text').textContent = active ? `ON ${active}/${total}` : 'OFF';
     marker.setAttribute('aria-label', `${room.name}: เปิด ${active} จาก ${total} อุปกรณ์`);
@@ -238,6 +290,7 @@ const iconPaths = {
   workflow: '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M6 9v3a3 3 0 0 0 3 3h6m0-9h-3a3 3 0 0 0-3 3v3"/>',
   'chart-no-axes-combined': '<path d="M3 3v18h18M8 15l4-4 4 3 5-7"/>',
   'calendar-days': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01"/>',
+  check: '<path d="m5 12 4 4L19 6"/>',
   save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
   play: '<path d="m7 4 13 8-13 8z"/>', pause: '<path d="M8 5h3v14H8zm5 0h3v14h-3z"/>',
   wind: '<path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h6a3 3 0 1 1-3 3"/>',
@@ -288,7 +341,10 @@ function loadOptionalLibrary(url, onLoad) {
 
 function estimatedKwh(room, type) {
   const model = energyModel[type];
-  const dailyUnits = Array.from({ length: 24 }, (_, hour) => deviceScheduleFraction(room, type, hour, selectedScenario, false))
+  const dailyUnits = Array.from({ length: 24 }, (_, hour) => {
+    const scheduled = deviceScheduleFraction(room, type, hour, selectedScenario, false);
+    return weatherAdjustedFraction(room, type, hour, scheduled, selectedScenario);
+  })
     .reduce((sum, fraction) => sum + fraction, 0);
   return model.watts * quantity(room, type) * dailyUnits * 30 / 1000;
 }
@@ -328,7 +384,10 @@ function renderRoom() {
     const isGroup = !room;
     const allOn = matchingRooms.every(item => isOn(item.id, type));
     const anyOn = matchingRooms.some(item => isOn(item.id, type));
-    const activeQty = matchingRooms.reduce((sum, item) => sum + (deviceScheduleFraction(item, type, simulationHour) > 0 ? quantity(item, type) : 0), 0);
+    const activeQty = matchingRooms.reduce((sum, item) => {
+      const scheduled = deviceScheduleFraction(item, type, simulationHour);
+      return sum + (weatherAdjustedFraction(item, type, simulationHour, scheduled, selectedScenario) > 0 ? quantity(item, type) : 0);
+    }, 0);
     const includedQty = matchingRooms.reduce((sum, item) => sum + (isOn(item.id, type) ? quantity(item, type) : 0), 0);
     const stateText = selectedScenario === 'away' && type !== 'fridge'
       ? 'ปิดตามรูปแบบ'
@@ -675,6 +734,7 @@ function renderPeriodControls() {
 
 function renderSimulationView() {
   simulationHour = normalizeSimulationHour(simulationHour);
+  renderWeatherState();
   const hourly = hourlySimulation();
   const hour = simulationHourIndex();
   const currentWatts = isSimulationDayEnd() ? 0 : hourly[hour].watts;
@@ -872,6 +932,32 @@ function renderMonthlyHistory() {
   }));
 }
 
+function showToast(message, isError = false) {
+  const toast = document.querySelector('#appToast');
+  toast.textContent = message;
+  toast.classList.toggle('toast-error', isError);
+  toast.classList.add('toast-visible');
+  if (toastTimer) window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove('toast-visible');
+    toastTimer = null;
+  }, 2600);
+}
+
+function setSaveButtonFeedback(persisted) {
+  const button = document.querySelector('#saveMonthlyResult');
+  button.classList.toggle('is-saved', persisted);
+  button.innerHTML = `<i data-lucide="${persisted ? 'check' : 'save'}" aria-hidden="true"></i><span>${persisted ? 'บันทึกเรียบร้อย!' : 'บันทึกชั่วคราวแล้ว'}</span>`;
+  renderIcons(button);
+  if (saveFeedbackTimer) window.clearTimeout(saveFeedbackTimer);
+  saveFeedbackTimer = window.setTimeout(() => {
+    button.classList.remove('is-saved');
+    button.innerHTML = '<i data-lucide="save" aria-hidden="true"></i><span>บันทึกผลประจำเดือน</span>';
+    renderIcons(button);
+    saveFeedbackTimer = null;
+  }, 2200);
+}
+
 function saveMonthlyResult() {
   if (simulationRange !== 'month') return;
   const date = currentSimulationDate();
@@ -891,6 +977,8 @@ function saveMonthlyResult() {
   document.querySelector('#historySaveStatus').textContent = persisted
     ? `บันทึก ${month} แล้ว · สะสมถึง ${through}`
     : 'บันทึกไว้ชั่วคราว แต่เบราว์เซอร์ไม่อนุญาตให้เก็บข้ามการปิดเว็บ';
+  setSaveButtonFeedback(persisted);
+  showToast(persisted ? `บันทึกผล ${month} ลงในประวัติแล้ว` : 'ข้อมูลบันทึกชั่วคราวเท่านั้น อาจหายเมื่อปิดเว็บ', !persisted);
 }
 
 function restoreBillSettings() {
@@ -1156,6 +1244,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMonthlyHistory();
   renderScenarioState();
   renderSimulationView();
+  document.querySelectorAll('.weather-button').forEach(button => {
+    button.addEventListener('click', () => selectWeather(button.dataset.weather));
+  });
   document.querySelector('#simulationTime').addEventListener('input', event => {
     pauseSimulation();
     const previousHour = simulationHour;
