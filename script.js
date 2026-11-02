@@ -40,6 +40,9 @@ const scenarioStorageKey = 'smartliving-energy-sim-profile-v2';
 const rangeStorageKey = 'smartliving-energy-sim-range-v1';
 const defaultFtRate = 0.1623;
 const monthlyServiceCharges = { lowUse: 8.19, regular: 24.62 };
+// Declare storage fallback state before readStatus() runs during script startup.
+const warnedStorageKeys = new Set();
+const memoryStorageFallback = new Map();
 let energyChart = null;
 let simulationChart = null;
 let selectedRoom = 'all';
@@ -52,18 +55,64 @@ let simulationTimer = null;
 let timelineTickSignature = '';
 const simulationOverrides = new Set();
 
+function readStoredValue(key) {
+  try {
+    const value = localStorage.getItem(key);
+    if (value !== null) memoryStorageFallback.set(key, value);
+    return value ?? memoryStorageFallback.get(key) ?? null;
+  } catch (error) {
+    warnStorageFallback(key, error);
+    return memoryStorageFallback.get(key) ?? null;
+  }
+}
+
+function writeStoredValue(key, value) {
+  const serialized = String(value);
+  // เก็บในหน่วยความจำก่อน เพื่อให้การเปลี่ยนค่ายังใช้ได้จนกว่าจะปิดหน้าเว็บ
+  memoryStorageFallback.set(key, serialized);
+  try {
+    localStorage.setItem(key, serialized);
+  } catch (error) {
+    warnStorageFallback(key, error);
+  }
+}
+
+function normalizeSimulationHour(value) {
+  // 24:00 is a valid end-of-day marker; array lookups must use simulationHourIndex().
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(24, Math.floor(numeric)));
+}
+
+function simulationHourIndex(value = simulationHour) {
+  return Math.min(23, normalizeSimulationHour(value));
+}
+
+function isSimulationDayEnd(value = simulationHour) {
+  return normalizeSimulationHour(value) === 24;
+}
+
+function warnStorageFallback(key, error) {
+  if (warnedStorageKeys.has(key)) return;
+  warnedStorageKeys.add(key);
+  if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+    console.warn(`[Smart Living] อ่านหรือบันทึก ${key} ไม่ได้; เว็บไซต์จะทำงานต่อ แต่ข้อมูลนี้อาจไม่อยู่หลังปิดหน้าเว็บ`, error);
+  }
+}
+
 function readStatus() {
-  try { return JSON.parse(localStorage.getItem(storageKey) || '{}'); }
-  catch { return {}; }
+  try {
+    const saved = JSON.parse(readStoredValue(storageKey) || '{}');
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+  } catch (error) {
+    warnStorageFallback(storageKey, error);
+    return {};
+  }
 }
 
 function readSimulationRange() {
-  try {
-    const saved = localStorage.getItem(rangeStorageKey);
-    return ['day', 'month', 'year'].includes(saved) ? saved : 'day';
-  } catch {
-    return 'day';
-  }
+  const saved = readStoredValue(rangeStorageKey);
+  return ['day', 'month', 'year'].includes(saved) ? saved : 'day';
 }
 
 function simulationPeriodDays(range = simulationRange) {
@@ -95,7 +144,7 @@ function simulationOverrideKey(roomId, type, hour, dayIndex = simulationDayIndex
 }
 
 function saveStatus() {
-  try { localStorage.setItem(storageKey, JSON.stringify(status)); } catch { /* ใช้ต่อได้แม้เบราว์เซอร์ปิด local storage */ }
+  writeStoredValue(storageKey, JSON.stringify(status));
 }
 
 function quantity(room, type) { return Number(room.devices[type] || 0); }
@@ -122,8 +171,9 @@ const scheduleWindows = {
 
 function deviceScheduleFraction(room, type, hour, profile = selectedScenario, includeOverrides = true, dayIndex = simulationDayIndex) {
   if (!isOn(room.id, type)) return 0;
-  if (hour < 0 || hour >= 24) return 0;
-  const safeHour = Math.max(0, Math.min(23, Math.floor(hour)));
+  const numericHour = Number(hour);
+  if (!Number.isFinite(numericHour) || numericHour < 0 || numericHour >= 24) return 0;
+  const safeHour = simulationHourIndex(numericHour);
   if (includeOverrides && simulationOverrides.has(simulationOverrideKey(room.id, type, safeHour, dayIndex))) return 1;
   if (profile === 'away') return type === 'fridge' ? energyModel.fridge.dutyCycle : 0;
   if (type === 'fridge') return energyModel.fridge.dutyCycle;
@@ -162,28 +212,65 @@ function updatePlanDeviceMarkers() {
   });
 }
 
+const iconPaths = {
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  cpu: '<rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 9h6v6H9zM9 1v4m6-4v4m-6 14v4m6-4v4M1 9h4m-4 6h4m14-6h4m-4 6h4"/>',
+  ellipsis: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  'file-spreadsheet': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8m-8 4h8m-5-4v7"/>',
+  house: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>',
+  'layout-dashboard': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+  lightbulb: '<path d="M9 18h6m-5 4h4m-2-20a7 7 0 0 0-4 12.7c.6.4 1 1 1 1.8h6c0-.8.4-1.4 1-1.8A7 7 0 0 0 12 2z"/>',
+  map: '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/>',
+  'map-pin': '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  'maximize-2': '<path d="M15 3h6v6m-7 1 7-7M9 21H3v-6m7-1-7 7M21 15v6h-6m-1-7 7 7M3 9V3h6m1 7L3 3"/>',
+  'panels-top-left': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+  plug: '<path d="M12 22v-5m-5-12v5m10-5v5M5 10h14v2a7 7 0 0 1-14 0z"/>',
+  'rotate-ccw': '<path d="M3 7v6h6M3 13a9 9 0 1 0 2.6-6.4L3 9"/>',
+  'door-open': '<path d="M13 4H6a2 2 0 0 0-2 2v14h11V6a2 2 0 0 0-2-2Z"/><path d="M15 12h6m-3-3 3 3-3 3"/><path d="M10 12h.01"/>',
+  moon: '<path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  'scan-eye': '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  thermometer: '<path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/>',
+  workflow: '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M6 9v3a3 3 0 0 0 3 3h6m0-9h-3a3 3 0 0 0-3 3v3"/>',
+  'chart-no-axes-combined': '<path d="M3 3v18h18M8 15l4-4 4 3 5-7"/>',
+  'calendar-days': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01"/>',
+  play: '<path d="m7 4 13 8-13 8z"/>', pause: '<path d="M8 5h3v14H8zm5 0h3v14h-3z"/>',
+  wind: '<path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h6a3 3 0 1 1-3 3"/>',
+  zap: '<path d="m13 2-3 9h7L9 22l2-9H4z"/>',
+  bed: '<path d="M3 18v-6h18v6M3 12V6h7v6m0-4h7a4 4 0 0 1 4 4M3 18v3m18-3v3"/>',
+  sofa: '<path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M3 18v-5a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5zM5 18v2m14-2v2"/>',
+  tv: '<rect x="3" y="5" width="18" height="13" rx="2"/><path d="m8 22 4-4 4 4"/>',
+  refrigerator: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14m-10-5v2m0 6v4"/>',
+  flame: '<path d="M12 22a7 7 0 0 0 7-7c0-4-3-6-4-10-2 2-3 4-3 6-2-1-3-3-3-5-3 3-5 6-5 9a8 8 0 0 0 8 7Z"/><path d="M10 17a3 3 0 0 0 6 0c0-2-2-3-3-5-2 2-3 3-3 5Z"/>',
+  'chart-no-axes-column-increasing': '<path d="M3 3v18h18"/><path d="M8 16V9m5 7V5m5 11v-4"/>',
+  'plug-zap': '<path d="M12 22v-5m-5-12v5m10-5v5M5 10h14v2a7 7 0 0 1-9 6.7"/><path d="m14 2-2 4h4l-3 4"/>',
+  'washing-machine': '<rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="13" r="5"/><path d="M8 6h.01M12 6h.01M16 6h.01"/>'
+};
+
+function renderFallbackIcons(root = document) {
+  root.querySelectorAll?.('[data-lucide]').forEach(node => {
+    node.classList.add('icon-fallback');
+    const paths = iconPaths[node.dataset.lucide] || iconPaths.activity;
+    node.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+  });
+}
+
 function renderIcons(root = document) {
   if (window.lucide?.createIcons) {
     root.querySelectorAll?.('[data-lucide].icon-fallback').forEach(node => {
       node.classList.remove('icon-fallback');
       node.textContent = '';
     });
-    window.lucide.createIcons({ root, attrs: { 'stroke-width': 1.8 } });
-    return;
+    try {
+      window.lucide.createIcons({ root, attrs: { 'stroke-width': 1.8 } });
+    } catch (error) {
+      console.info('Lucide icons unavailable; using built-in symbols instead.', error);
+    }
   }
 
-  const glyphs = {
-    activity: '⌁', cpu: '▦', ellipsis: '⋯', 'file-spreadsheet': '▤', house: '⌂',
-    info: 'i', 'layout-dashboard': '▦', lightbulb: '◉', map: '⌖', 'map-pin': '⌖',
-    'maximize-2': '⛶', 'panels-top-left': '▣', plug: '↯', 'rotate-ccw': '↶',
-    'door-open': '⇥', moon: '☾', sun: '☼', 'scan-eye': '◉', thermometer: '♨', workflow: '⌘',
-    'chart-no-axes-combined': '▥', 'calendar-days': '▦', play: '▶', pause: 'Ⅱ',
-    wind: '≋', zap: 'ϟ', bed: '▰', sofa: '▰', tv: '▣', refrigerator: '▤', flame: '♨'
-  };
-  root.querySelectorAll?.('[data-lucide]').forEach(node => {
-    node.classList.add('icon-fallback');
-    node.textContent = glyphs[node.dataset.lucide] || '•';
-  });
+  // Use built-in symbols for any icon the library could not render.
+  renderFallbackIcons(root);
 }
 
 function loadOptionalLibrary(url, onLoad) {
@@ -255,16 +342,12 @@ function renderRoom() {
 }
 
 function loadSelectedScenario() {
-  try {
-    const saved = localStorage.getItem(scenarioStorageKey);
-    return Object.hasOwn(scenarioNames, saved) ? saved : 'weekday';
-  } catch {
-    return 'weekday';
-  }
+  const saved = readStoredValue(scenarioStorageKey);
+  return Object.hasOwn(scenarioNames, saved) ? saved : 'weekday';
 }
 
 function saveSelectedScenario() {
-  try { localStorage.setItem(scenarioStorageKey, selectedScenario); } catch { /* การจำลองยังทำงานได้หากบันทึกไม่ได้ */ }
+  writeStoredValue(scenarioStorageKey, selectedScenario);
 }
 
 function renderScenarioState() {
@@ -278,7 +361,7 @@ function renderScenarioState() {
 function showSimulationEvent(message) {
   const log = document.querySelector('#simulationLog');
   if (!log) return;
-  const time = `${String(simulationHour).padStart(2, '0')}:00`;
+  const time = `${String(normalizeSimulationHour(simulationHour)).padStart(2, '0')}:00`;
   const datePrefix = simulationRange === 'day' ? '' : `${formatSimulationDate(currentSimulationDate())} · `;
   const entry = document.createElement('li');
   const timestamp = document.createElement('time');
@@ -290,8 +373,10 @@ function showSimulationEvent(message) {
 }
 
 function logSimulationHour(previousHour, currentHour, previousDayIndex = simulationDayIndex, currentDayIndex = simulationDayIndex) {
-  const previous = previousHour < 24 ? previousHour : -1;
-  const current = currentHour < 24 ? currentHour : -1;
+  const previousValue = Number(previousHour);
+  const currentValue = Number(currentHour);
+  const previous = Number.isFinite(previousValue) && previousValue >= 0 && previousValue < 24 ? simulationHourIndex(previousValue) : -1;
+  const current = Number.isFinite(currentValue) && currentValue >= 0 && currentValue < 24 ? simulationHourIndex(currentValue) : -1;
   if (previous >= 0 && current >= 0 && (previous !== current || previousDayIndex !== currentDayIndex)) {
     rooms.forEach(room => order.forEach(type => {
       const wasActive = deviceScheduleFraction(room, type, previous, selectedScenario, true, previousDayIndex) > 0;
@@ -315,7 +400,7 @@ function simulationChartSeries() {
     return {
       labels: hourly.map(item => `${String(item.hour).padStart(2, '0')}:00`),
       values: hourly.map(item => item.watts / 1000),
-      activeIndex: simulationHour < 24 ? simulationHour : -1,
+      activeIndex: isSimulationDayEnd() ? -1 : simulationHourIndex(),
       datasetLabel: 'โหลดไฟรายชั่วโมง',
       axisTitle: 'กำลังไฟ (kW)',
       tooltipUnit: 'kW · kWh ในชั่วโมงนี้'
@@ -360,6 +445,20 @@ function createSimulationChart() {
   }
 
   const series = simulationChartSeries();
+  if (!series.values.some(value => Number.isFinite(value) && value > 0)) {
+    if (simulationChart) {
+      simulationChart.destroy();
+      simulationChart = null;
+    }
+    canvas.hidden = true;
+    if (fallback) {
+      fallback.textContent = 'ไม่มีโหลดไฟในช่วงเวลาที่เลือก · ตรวจสอบว่านำอุปกรณ์เข้าแบบจำลองแล้ว';
+      fallback.hidden = false;
+    }
+    return;
+  }
+
+  if (fallback) fallback.textContent = 'กราฟโหลดไม่สำเร็จ แต่ค่าพลังงานและตารางอุปกรณ์ยังคำนวณได้';
   const colors = series.values.map((_, index) => index === series.activeIndex ? '#69e697' : 'rgba(105, 230, 151, .34)');
   try {
     if (simulationChart) {
@@ -417,7 +516,7 @@ function applyScenario(scenario) {
 }
 
 function simulateSensor(sensor) {
-  if (simulationHour >= 24) {
+  if (isSimulationDayEnd()) {
     showSimulationEvent('สิ้นสุดวันจำลองแล้ว กดเริ่มใหม่ก่อนทดลองเหตุการณ์');
     return;
   }
@@ -426,7 +525,7 @@ function simulateSensor(sensor) {
     return;
   }
 
-  const hour = Math.min(simulationHour, 23);
+  const hour = simulationHourIndex();
   if (sensor === 'motion') {
     simulationOverrides.add(simulationOverrideKey('living', 'lights', hour));
     renderSimulationView();
@@ -448,7 +547,7 @@ function currentDayEnergyKwh() {
 }
 
 function currentDayAccumulatedKwh() {
-  return hourlySimulation().slice(0, Math.min(simulationHour, 24)).reduce((sum, item) => sum + item.kwh, 0);
+  return hourlySimulation().slice(0, normalizeSimulationHour(simulationHour)).reduce((sum, item) => sum + item.kwh, 0);
 }
 
 function projectedPeriodKwh() {
@@ -474,6 +573,44 @@ function projectedPeriodCost() {
     const adjustment = month === selectedMonth ? oneDayAdjustment : 0;
     return billEstimate(baselineDaily * days + adjustment).total;
   }).reduce((sum, amount) => sum + amount, 0);
+}
+
+function accruedBillCost(units, serviceFraction = 1) {
+  const rateType = document.querySelector('#billRateType').value;
+  const ftValue = Number(document.querySelector('#billFtRate').value);
+  const ftRate = Number.isFinite(ftValue) ? ftValue : defaultFtRate;
+  const beforeVat = energyChargeByTiers(units, rateType)
+    + units * ftRate
+    + monthlyServiceCharges[rateType] * Math.max(0, Math.min(1, serviceFraction));
+  return beforeVat * 1.07;
+}
+
+function accumulatedPeriodCost() {
+  const date = currentSimulationDate();
+  const fractionOfDay = simulationHour / 24;
+  const dailyKwh = dailyEnergyKwh();
+
+  if (simulationRange === 'day') {
+    return accruedBillCost(currentDayAccumulatedKwh(), fractionOfDay / 30);
+  }
+
+  if (simulationRange === 'month') {
+    const daysInMonth = simulationPeriodDays();
+    const elapsedDays = simulationDayIndex + fractionOfDay;
+    return accruedBillCost(accumulatedPeriodKwh(), elapsedDays / daysInMonth);
+  }
+
+  const year = date.getFullYear();
+  let total = 0;
+  for (let month = 0; month <= date.getMonth(); month += 1) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const monthUnits = month < date.getMonth()
+      ? dailyKwh * daysInMonth
+      : dailyKwh * (date.getDate() - 1) + currentDayAccumulatedKwh();
+    const elapsedDays = month < date.getMonth() ? daysInMonth : date.getDate() - 1 + fractionOfDay;
+    total += accruedBillCost(monthUnits, elapsedDays / daysInMonth);
+  }
+  return total;
 }
 
 function renderPeriodControls() {
@@ -520,17 +657,18 @@ function renderPeriodControls() {
   document.querySelector('#simulationAccumulatedLabel').textContent = simulationRange === 'day' ? 'หน่วยสะสมถึงเวลานี้' : 'หน่วยสะสมถึงวันและเวลาที่เลือก';
   document.querySelector('#simulationPeriodEnergyLabel').textContent = `พลังงานคาดการณ์${metricLabel}`;
   document.querySelector('#simulationCostLabel').textContent = simulationRange === 'day'
-    ? 'ค่าไฟคาดการณ์ 30 วัน'
-    : simulationRange === 'month' ? 'ค่าไฟคาดการณ์ทั้งเดือน' : 'ค่าไฟคาดการณ์ทั้งปี';
+    ? 'ค่าไฟสะสมถึงเวลานี้'
+    : simulationRange === 'month' ? 'ค่าไฟสะสมถึงวันและเวลาที่เลือก' : 'ค่าไฟสะสมตั้งแต่ต้นปี';
   document.querySelector('#simulationFootnote').textContent = simulationRange === 'day'
-    ? 'รายวัน: 1 วินาที = 1 ชั่วโมงจำลอง · ค่าประมาณยึดตารางของรูปแบบที่เลือก'
-    : 'รายเดือน/รายปี: 1 วินาที = 1 วันจำลอง · ใช้รูปแบบการใช้ไฟที่เลือกซ้ำในแต่ละวัน';
+    ? 'รายวัน: 1 วินาที = 1 ชั่วโมงจำลอง · 24:00 คือสิ้นวัน · ค่าไฟและหน่วยสะสมเพิ่มตามเวลาที่เลือก'
+    : 'รายเดือน/รายปี: 1 วินาที = 1 วันจำลอง · ค่าไฟและหน่วยสะสมเพิ่มตามวันที่และเวลาที่เลือก';
 }
 
 function renderSimulationView() {
+  simulationHour = normalizeSimulationHour(simulationHour);
   const hourly = hourlySimulation();
-  const hour = Math.min(simulationHour, 23);
-  const currentWatts = simulationHour < 24 ? hourly[hour].watts : 0;
+  const hour = simulationHourIndex();
+  const currentWatts = isSimulationDayEnd() ? 0 : hourly[hour].watts;
   const accumulated = accumulatedPeriodKwh();
   const projectedKwh = projectedPeriodKwh();
   renderPeriodControls();
@@ -540,7 +678,7 @@ function renderSimulationView() {
   document.querySelector('#simulationPower').textContent = (currentWatts / 1000).toFixed(2);
   document.querySelector('#simulationAccumulated').textContent = accumulated.toFixed(2);
   document.querySelector('#simulationDailyTotal').textContent = projectedKwh.toFixed(2);
-  document.querySelector('#simulationMonthlyCost').textContent = money(projectedPeriodCost());
+  document.querySelector('#simulationMonthlyCost').textContent = money(accumulatedPeriodCost());
 
   renderRoom();
   createSimulationChart();
@@ -564,7 +702,8 @@ function playSimulation() {
     pauseSimulation();
     return;
   }
-  if (simulationRange === 'day' && simulationHour >= 24) simulationHour = 0;
+  simulationHour = normalizeSimulationHour(simulationHour);
+  if (simulationRange === 'day' && isSimulationDayEnd()) simulationHour = 0;
   if (simulationRange !== 'day' && simulationDayIndex >= simulationPeriodDays() - 1) simulationDayIndex = 0;
   renderSimulationView();
   setPlaybackButton(true);
@@ -573,14 +712,14 @@ function playSimulation() {
     const previousHour = simulationHour;
     const previousDayIndex = simulationDayIndex;
     if (simulationRange === 'day') {
-      simulationHour = Math.min(24, simulationHour + 1);
+      simulationHour = normalizeSimulationHour(simulationHour + 1);
     } else if (simulationDayIndex < simulationPeriodDays() - 1) {
       simulationDayIndex += 1;
     }
     renderSimulationView();
     logSimulationHour(previousHour, simulationHour, previousDayIndex, simulationDayIndex);
     const finished = simulationRange === 'day'
-      ? simulationHour >= 24
+      ? isSimulationDayEnd()
       : simulationDayIndex >= simulationPeriodDays() - 1;
     if (finished) {
       pauseSimulation();
@@ -685,10 +824,13 @@ function renderBillEstimate(units) {
 
 function restoreBillSettings() {
   try {
-    const saved = JSON.parse(localStorage.getItem(billSettingsStorageKey) || '{}');
+    const saved = JSON.parse(readStoredValue(billSettingsStorageKey) || '{}');
     if (['lowUse', 'regular'].includes(saved.rateType)) document.querySelector('#billRateType').value = saved.rateType;
     if (Number.isFinite(Number(saved.ftRate))) document.querySelector('#billFtRate').value = saved.ftRate;
-  } catch { /* ใช้ค่าเริ่มต้นเมื่ออ่านการตั้งค่าที่บันทึกไว้ไม่ได้ */ }
+  } catch (error) {
+    warnStorageFallback(billSettingsStorageKey, error);
+    /* ใช้ค่าเริ่มต้นเมื่ออ่านการตั้งค่าที่บันทึกไว้ไม่ได้ */
+  }
 }
 
 function saveBillSettings() {
@@ -696,7 +838,7 @@ function saveBillSettings() {
     rateType: document.querySelector('#billRateType').value,
     ftRate: Number(document.querySelector('#billFtRate').value)
   };
-  try { localStorage.setItem(billSettingsStorageKey, JSON.stringify(settings)); } catch { /* การคำนวณยังทำงานได้หากบันทึกไม่ได้ */ }
+  writeStoredValue(billSettingsStorageKey, JSON.stringify(settings));
 }
 
 function renderEnergyChart(energyTotals) {
@@ -945,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#simulationTime').addEventListener('input', event => {
     pauseSimulation();
     const previousHour = simulationHour;
-    simulationHour = Number(event.target.value);
+    simulationHour = normalizeSimulationHour(event.target.value);
     renderSimulationView();
     logSimulationHour(previousHour, simulationHour);
   });
@@ -963,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     simulationDayIndex = 0;
     simulationHour = 0;
     simulationOverrides.clear();
-    try { localStorage.setItem(rangeStorageKey, simulationRange); } catch { /* การจำลองทำงานต่อได้หากบันทึกไม่ได้ */ }
+    writeStoredValue(rangeStorageKey, simulationRange);
     renderSimulationView();
     showSimulationEvent(`เปลี่ยนช่วงจำลองเป็น${simulationRange === 'day' ? 'รายวัน' : simulationRange === 'month' ? 'รายเดือน' : 'รายปี'}`);
     logSimulationHour(-1, simulationHour);
