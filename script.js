@@ -38,6 +38,7 @@ const storageKey = 'smartliving-energy-sim-device-status-v2';
 const billSettingsStorageKey = 'smartliving-blueprint-bill-settings-v1';
 const scenarioStorageKey = 'smartliving-energy-sim-profile-v2';
 const rangeStorageKey = 'smartliving-energy-sim-range-v1';
+const monthlyHistoryStorageKey = 'smartliving-monthly-simulation-history-v1';
 const defaultFtRate = 0.1623;
 const monthlyServiceCharges = { lowUse: 8.19, regular: 24.62 };
 // Declare storage fallback state before readStatus() runs during script startup.
@@ -72,8 +73,10 @@ function writeStoredValue(key, value) {
   memoryStorageFallback.set(key, serialized);
   try {
     localStorage.setItem(key, serialized);
+    return true;
   } catch (error) {
     warnStorageFallback(key, error);
+    return false;
   }
 }
 
@@ -235,6 +238,7 @@ const iconPaths = {
   workflow: '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M6 9v3a3 3 0 0 0 3 3h6m0-9h-3a3 3 0 0 0-3 3v3"/>',
   'chart-no-axes-combined': '<path d="M3 3v18h18M8 15l4-4 4 3 5-7"/>',
   'calendar-days': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
   play: '<path d="m7 4 13 8-13 8z"/>', pause: '<path d="M8 5h3v14H8zm5 0h3v14h-3z"/>',
   wind: '<path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h6a3 3 0 1 1-3 3"/>',
   zap: '<path d="m13 2-3 9h7L9 22l2-9H4z"/>',
@@ -630,6 +634,11 @@ function renderPeriodControls() {
   document.querySelector('#simulationDayControlLabel').textContent = simulationRange === 'month' ? 'เลือกวันที่ในเดือน' : 'เลือกวันในปี';
   document.querySelector('#simulationDateLabel').textContent = dateText;
   document.querySelector('#simulationClockLabel').textContent = simulationRange === 'day' ? 'เวลาในวันจำลอง' : 'เวลา ณ วันที่เลือก';
+  const saveButton = document.querySelector('#saveMonthlyResult');
+  saveButton.disabled = simulationRange !== 'month';
+  document.querySelector('#historySaveStatus').textContent = simulationRange === 'month'
+    ? 'บันทึกยอดสะสมของเดือนที่เลือกได้'
+    : 'เลือกช่วงเวลา “รายเดือน” เพื่อบันทึกผล';
 
   const dayInput = document.querySelector('#simulationDay');
   dayInput.max = String(days - 1);
@@ -820,6 +829,68 @@ function renderBillEstimate(units) {
   document.querySelector('#billVatCharge').textContent = money(estimate.vat);
   document.querySelector('#billEstimatedTotal').textContent = money(estimate.total);
   document.querySelector('#billFtPeriod').textContent = `Ft ${estimate.safeFtRate.toFixed(4)} บาท/หน่วย`;
+}
+
+function readMonthlyHistory() {
+  try {
+    const saved = JSON.parse(readStoredValue(monthlyHistoryStorageKey) || '[]');
+    if (!Array.isArray(saved)) return [];
+    return saved.filter(item => item && typeof item.month === 'string'
+      && typeof item.scenario === 'string'
+      && Number.isFinite(Number(item.kwh))
+      && Number.isFinite(Number(item.cost))
+      && typeof item.through === 'string');
+  } catch (error) {
+    warnStorageFallback(monthlyHistoryStorageKey, error);
+    return [];
+  }
+}
+
+function renderMonthlyHistory() {
+  const records = readMonthlyHistory();
+  const rows = document.querySelector('#monthlyHistoryRows');
+  document.querySelector('#monthlyHistoryCount').textContent = `${records.length} รายการ`;
+  if (!records.length) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 5;
+    cell.className = 'history-empty';
+    cell.textContent = 'ยังไม่มีประวัติ เลือกช่วง “รายเดือน” แล้วกดบันทึกผล';
+    row.append(cell);
+    rows.replaceChildren(row);
+    return;
+  }
+
+  rows.replaceChildren(...records.map(record => {
+    const row = document.createElement('tr');
+    [record.month, record.scenario, `${Number(record.kwh).toFixed(2)} kWh`, `${money(Number(record.cost))} บาท`, record.through].forEach(value => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.append(cell);
+    });
+    return row;
+  }));
+}
+
+function saveMonthlyResult() {
+  if (simulationRange !== 'month') return;
+  const date = currentSimulationDate();
+  const month = formatSimulationDate(date, { month: 'long', year: 'numeric' });
+  const through = `${formatSimulationDate(date, { day: 'numeric', month: 'short' })} · ${String(simulationHour).padStart(2, '0')}:00`;
+  const record = {
+    month,
+    scenario: scenarioNames[selectedScenario],
+    kwh: Number(accumulatedPeriodKwh().toFixed(2)),
+    cost: Number(accumulatedPeriodCost().toFixed(2)),
+    through,
+    savedAt: new Date().toISOString()
+  };
+  const records = [record, ...readMonthlyHistory()].slice(0, 36);
+  const persisted = writeStoredValue(monthlyHistoryStorageKey, JSON.stringify(records));
+  renderMonthlyHistory();
+  document.querySelector('#historySaveStatus').textContent = persisted
+    ? `บันทึก ${month} แล้ว · สะสมถึง ${through}`
+    : 'บันทึกไว้ชั่วคราว แต่เบราว์เซอร์ไม่อนุญาตให้เก็บข้ามการปิดเว็บ';
 }
 
 function restoreBillSettings() {
@@ -1082,6 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRoom();
   renderInventory();
   renderEnergy();
+  renderMonthlyHistory();
   renderScenarioState();
   renderSimulationView();
   document.querySelector('#simulationTime').addEventListener('input', event => {
@@ -1110,6 +1182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showSimulationEvent(`เปลี่ยนช่วงจำลองเป็น${simulationRange === 'day' ? 'รายวัน' : simulationRange === 'month' ? 'รายเดือน' : 'รายปี'}`);
     logSimulationHour(-1, simulationHour);
   });
+  document.querySelector('#saveMonthlyResult').addEventListener('click', saveMonthlyResult);
   document.querySelector('#simulationSpeed').addEventListener('change', () => {
     if (simulationTimer) {
       pauseSimulation();

@@ -2095,6 +2095,60 @@ td:first-child {
 .bill-sources { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 .bill-sources a { color: #a8c8b0; font-size: 8px; text-decoration: underline; text-underline-offset: 2px; }
 
+.simulation-save-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+
+.save-history-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #dff4e5;
+  border-color: #3e7551;
+  background: #173323;
+}
+
+.save-history-button:hover:not(:disabled) { background: #20432e; }
+.save-history-button:disabled { opacity: .48; cursor: not-allowed; }
+.save-history-button svg { width: 14px; height: 14px; }
+#historySaveStatus { color: #a7b7ab; font-size: 9px; line-height: 1.5; }
+
+.history-panel {
+  margin: 14px 0 18px;
+  padding: 15px;
+  border: 1px solid #2b4032;
+  border-radius: 11px;
+  background: #101712;
+}
+
+.history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.history-heading b, .history-heading small { display: block; }
+.history-heading b { color: #e2eee5; font-size: 12px; }
+.history-heading small, #monthlyHistoryCount { color: #96a69a; font-size: 9px; }
+.history-table { min-width: 650px; }
+.history-table td:nth-child(3), .history-table td:nth-child(4) {
+  color: #d7e8dc;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.history-table td:nth-child(4) { color: #ffc66e; }
+.history-table .history-empty { padding: 18px; color: #92a095; text-align: center; }
+
+@media (max-width: 640px) {
+  .history-panel { padding: 11px 9px; }
+}
+
 @media (max-width: 640px) {
   .bill-estimate-panel { padding: 12px 10px; }
   .bill-settings { grid-template-columns: minmax(0, 1fr) 120px; gap: 7px; }

@@ -7,8 +7,8 @@
   <meta name="description" content="เครื่องจำลองการใช้ไฟของบ้านตามช่วงเวลาและรูปแบบการใช้งาน">
   <title>Smart Living | Energy Simulator</title>
   <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
-    <link rel="stylesheet" href="style.css?v=24">
-    <script src="script.js?v=29" defer></script>
+    <link rel="stylesheet" href="style.css?v=25">
+    <script src="script.js?v=30" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -83,6 +83,7 @@
               <article class="simulation-metric simulation-metric-cost"><span id="simulationCostLabel">ค่าไฟคาดการณ์ 30 วัน</span><strong><b id="simulationMonthlyCost">0.00</b><small>บาท</small></strong></article>
             </div>
             <div class="simulation-chart-wrap"><canvas id="simulationChart" role="img" aria-label="กราฟแสดงกำลังไฟจำลองแยกตามชั่วโมงตลอด 24 ชั่วโมง"></canvas><p id="simulationChartFallback" class="chart-fallback" role="status" hidden>กราฟโหลดไม่สำเร็จ แต่ค่าพลังงานและตารางอุปกรณ์ยังคำนวณได้</p></div>
+            <div class="simulation-save-row"><button class="small-button save-history-button" id="saveMonthlyResult" type="button"><i data-lucide="save" aria-hidden="true"></i> บันทึกผลประจำเดือน</button><span id="historySaveStatus" role="status" aria-live="polite">เลือกช่วงเวลา “รายเดือน” เพื่อบันทึกผล</span></div>
             <p class="simulation-footnote" id="simulationFootnote">รายวัน: 1 วินาที = 1 ชั่วโมงจำลอง · เดือน/ปี: 1 วินาที = 1 วัน · รูปแบบการใช้ไฟที่เลือกใช้ซ้ำในแต่ละวัน</p>
           </div>
           <aside class="simulation-settings">
@@ -170,6 +171,12 @@
           <p class="bill-note">อัตราบ้านอยู่อาศัย PEA มีผลตั้งแต่บิลกันยายน 2569; ค่า Ft ที่ตั้งไว้เป็นงวดกันยายน–ธันวาคม 2569 ปรับค่า Ft ด้านบนได้เมื่อเปลี่ยนงวด ยอดจริงขึ้นกับเลขมิเตอร์ ประเภทมิเตอร์ และรายการอื่นในบิล</p>
           <div class="bill-sources"><a href="https://www.pea.co.th/sites/default/files/users/user34/attachments/Electricity_Tariff_SEP_2026_3.pdf" target="_blank" rel="noopener noreferrer">ตารางอัตราค่าไฟ PEA ปี 2569</a><a href="https://www.pea.co.th/our-services/tariff/ft" target="_blank" rel="noopener noreferrer">ตรวจสอบค่า Ft ล่าสุดจาก PEA</a></div>
         </div>
+        <section class="history-panel" aria-labelledby="monthlyHistoryTitle">
+          <div class="history-heading"><div><b id="monthlyHistoryTitle">ประวัติผลจำลองรายเดือน</b><small>บันทึกไว้ในเบราว์เซอร์เครื่องนี้</small></div><span id="monthlyHistoryCount">0 รายการ</span></div>
+          <div class="equipment-table-wrap history-table-wrap">
+            <table class="history-table"><thead><tr><th>เดือนที่จำลอง</th><th>โหมด</th><th>หน่วยสะสม</th><th>ค่าไฟสุทธิประมาณ</th><th>จำลองถึง</th></tr></thead><tbody id="monthlyHistoryRows"><tr><td colspan="5" class="history-empty">ยังไม่มีประวัติ เลือกช่วง “รายเดือน” แล้วกดบันทึกผล</td></tr></tbody></table>
+          </div>
+        </section>
         <div class="energy-chart-card">
           <div class="energy-chart-heading"><div><b>ใช้ไฟโดยประมาณแยกตามอุปกรณ์</b><small>คำนวณตามตารางของรูปแบบที่เลือก · kWh ต่อเดือน</small></div><span>kWh / เดือน</span></div>
           <div class="energy-chart-wrap"><canvas id="energyChart" role="img" aria-label="กราฟแท่งแสดงพลังงานไฟฟ้าประมาณต่อเดือน แยกตามประเภทเครื่องใช้ไฟฟ้า"></canvas><p id="energyChartFallback" class="chart-fallback" role="status" hidden>กราฟยังโหลดไม่สำเร็จ แต่ตารางพลังงานด้านล่างยังแสดงข้อมูลได้</p></div>
