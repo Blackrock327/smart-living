@@ -2137,14 +2137,34 @@ td:first-child {
 .history-heading b, .history-heading small { display: block; }
 .history-heading b { color: #e2eee5; font-size: 12px; }
 .history-heading small, #monthlyHistoryCount { color: #96a69a; font-size: 9px; }
-.history-table { min-width: 650px; }
+.history-tools { display: flex; align-items: center; gap: 10px; }
+.history-table { min-width: 720px; }
 .history-table td:nth-child(3), .history-table td:nth-child(4) {
   color: #d7e8dc;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .history-table td:nth-child(4) { color: #ffc66e; }
+.history-table th:last-child, .history-table td:last-child { text-align: center; }
 .history-table .history-empty { padding: 18px; color: #92a095; text-align: center; }
+.history-clear-button,
+.history-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 1px solid #664044;
+  border-radius: 7px;
+  color: #ffc5c4;
+  background: #2a191b;
+  font: 500 9px 'IBM Plex Sans Thai', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.history-clear-button:hover:not(:disabled), .history-delete-button:hover { border-color: #bd6d6d; background: #3a2022; }
+.history-clear-button:disabled { opacity: .45; cursor: not-allowed; }
+.history-delete-button svg { width: 13px; height: 13px; }
 
 .app-toast {
   position: fixed;

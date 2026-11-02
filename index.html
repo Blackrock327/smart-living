@@ -7,8 +7,8 @@
   <meta name="description" content="เครื่องจำลองการใช้ไฟของบ้านตามช่วงเวลาและรูปแบบการใช้งาน">
   <title>Smart Living | Energy Simulator</title>
   <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
-    <link rel="stylesheet" href="style.css?v=27">
-    <script src="script.js?v=32" defer></script>
+    <link rel="stylesheet" href="style.css?v=28">
+    <script src="script.js?v=33" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -186,9 +186,9 @@
           <div class="bill-sources"><a href="https://www.pea.co.th/sites/default/files/users/user34/attachments/Electricity_Tariff_SEP_2026_3.pdf" target="_blank" rel="noopener noreferrer">ตารางอัตราค่าไฟ PEA ปี 2569</a><a href="https://www.pea.co.th/our-services/tariff/ft" target="_blank" rel="noopener noreferrer">ตรวจสอบค่า Ft ล่าสุดจาก PEA</a></div>
         </div>
         <section class="history-panel" aria-labelledby="monthlyHistoryTitle">
-          <div class="history-heading"><div><b id="monthlyHistoryTitle">ประวัติผลจำลองรายเดือน</b><small>บันทึกไว้ในเบราว์เซอร์เครื่องนี้</small></div><span id="monthlyHistoryCount">0 รายการ</span></div>
+          <div class="history-heading"><div><b id="monthlyHistoryTitle">ประวัติผลจำลองรายเดือน</b><small>บันทึกไว้ในเบราว์เซอร์เครื่องนี้</small></div><div class="history-tools"><span id="monthlyHistoryCount">0 รายการ</span><button class="history-clear-button" id="clearMonthlyHistory" type="button" disabled>ล้างประวัติทั้งหมด</button></div></div>
           <div class="equipment-table-wrap history-table-wrap">
-            <table class="history-table"><thead><tr><th>เดือนที่จำลอง</th><th>โหมด</th><th>หน่วยสะสม</th><th>ค่าไฟสุทธิประมาณ</th><th>จำลองถึง</th></tr></thead><tbody id="monthlyHistoryRows"><tr><td colspan="5" class="history-empty">ยังไม่มีประวัติ เลือกช่วง “รายเดือน” แล้วกดบันทึกผล</td></tr></tbody></table>
+            <table class="history-table"><thead><tr><th>เดือนที่จำลอง</th><th>โหมด</th><th>หน่วยสะสม</th><th>ค่าไฟสุทธิประมาณ</th><th>จำลองถึง</th><th>จัดการ</th></tr></thead><tbody id="monthlyHistoryRows"><tr><td colspan="6" class="history-empty">ยังไม่มีประวัติ เลือกช่วง “รายเดือน” แล้วกดบันทึกผล</td></tr></tbody></table>
           </div>
         </section>
         <div class="energy-chart-card">

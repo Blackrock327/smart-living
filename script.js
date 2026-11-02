@@ -291,6 +291,7 @@ const iconPaths = {
   'chart-no-axes-combined': '<path d="M3 3v18h18M8 15l4-4 4 3 5-7"/>',
   'calendar-days': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
+  'trash-2': '<path d="M3 6h18m-2 0-.9 14.2A2 2 0 0 1 16.1 22H7.9a2 2 0 0 1-2-1.8L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-6 4v7m4-7v7"/>',
   save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
   play: '<path d="m7 4 13 8-13 8z"/>', pause: '<path d="M8 5h3v14H8zm5 0h3v14h-3z"/>',
   wind: '<path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h6a3 3 0 1 1-3 3"/>',
@@ -899,7 +900,11 @@ function readMonthlyHistory() {
       && typeof item.scenario === 'string'
       && Number.isFinite(Number(item.kwh))
       && Number.isFinite(Number(item.cost))
-      && typeof item.through === 'string');
+      && typeof item.through === 'string')
+      .map((item, index) => ({
+        ...item,
+        id: String(item.id || item.savedAt || `${item.month}-${item.scenario}-${item.through}-${index}`)
+      }));
   } catch (error) {
     warnStorageFallback(monthlyHistoryStorageKey, error);
     return [];
@@ -910,10 +915,11 @@ function renderMonthlyHistory() {
   const records = readMonthlyHistory();
   const rows = document.querySelector('#monthlyHistoryRows');
   document.querySelector('#monthlyHistoryCount').textContent = `${records.length} รายการ`;
+  document.querySelector('#clearMonthlyHistory').disabled = records.length === 0;
   if (!records.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 5;
+    cell.colSpan = 6;
     cell.className = 'history-empty';
     cell.textContent = 'ยังไม่มีประวัติ เลือกช่วง “รายเดือน” แล้วกดบันทึกผล';
     row.append(cell);
@@ -928,8 +934,37 @@ function renderMonthlyHistory() {
       cell.textContent = value;
       row.append(cell);
     });
+    const actionCell = document.createElement('td');
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'history-delete-button';
+    deleteButton.dataset.deleteHistory = record.id;
+    deleteButton.setAttribute('aria-label', `ลบประวัติ ${record.month} โหมด${record.scenario}`);
+    deleteButton.title = 'ลบรายการนี้';
+    deleteButton.innerHTML = '<i data-lucide="trash-2" aria-hidden="true"></i><span>ลบ</span>';
+    actionCell.append(deleteButton);
+    row.append(actionCell);
     return row;
   }));
+  renderIcons(rows);
+}
+
+function deleteMonthlyHistoryRecord(id) {
+  const records = readMonthlyHistory();
+  const record = records.find(item => item.id === id);
+  if (!record || !window.confirm(`ลบประวัติ ${record.month} โหมด${record.scenario} ใช่ไหม?`)) return;
+  const remaining = records.filter(item => item.id !== id);
+  const persisted = writeStoredValue(monthlyHistoryStorageKey, JSON.stringify(remaining));
+  renderMonthlyHistory();
+  showToast(persisted ? 'ลบรายการออกจากประวัติแล้ว' : 'ลบรายการชั่วคราวแล้ว แต่การเปลี่ยนแปลงอาจไม่อยู่หลังปิดเว็บ', !persisted);
+}
+
+function clearMonthlyHistory() {
+  if (!readMonthlyHistory().length) return;
+  if (!window.confirm('ลบประวัติผลจำลองรายเดือนทั้งหมดใช่ไหม? การลบนี้ย้อนกลับไม่ได้')) return;
+  const persisted = writeStoredValue(monthlyHistoryStorageKey, '[]');
+  renderMonthlyHistory();
+  showToast(persisted ? 'ล้างประวัติรายเดือนทั้งหมดแล้ว' : 'ล้างประวัติชั่วคราวแล้ว แต่การเปลี่ยนแปลงอาจไม่อยู่หลังปิดเว็บ', !persisted);
 }
 
 function showToast(message, isError = false) {
@@ -964,6 +999,7 @@ function saveMonthlyResult() {
   const month = formatSimulationDate(date, { month: 'long', year: 'numeric' });
   const through = `${formatSimulationDate(date, { day: 'numeric', month: 'short' })} · ${String(simulationHour).padStart(2, '0')}:00`;
   const record = {
+    id: window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     month,
     scenario: scenarioNames[selectedScenario],
     kwh: Number(accumulatedPeriodKwh().toFixed(2)),
@@ -1274,6 +1310,11 @@ document.addEventListener('DOMContentLoaded', () => {
     logSimulationHour(-1, simulationHour);
   });
   document.querySelector('#saveMonthlyResult').addEventListener('click', saveMonthlyResult);
+  document.querySelector('#clearMonthlyHistory').addEventListener('click', clearMonthlyHistory);
+  document.querySelector('#monthlyHistoryRows').addEventListener('click', event => {
+    const deleteButton = event.target.closest('[data-delete-history]');
+    if (deleteButton) deleteMonthlyHistoryRecord(deleteButton.dataset.deleteHistory);
+  });
   document.querySelector('#simulationSpeed').addEventListener('change', () => {
     if (simulationTimer) {
       pauseSimulation();
