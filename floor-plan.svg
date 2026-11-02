@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1115 1285" role="img" aria-labelledby="title desc">
   <title id="title">แปลนบ้านแบบวาดเวกเตอร์ อ้างอิงรายละเอียดจาก PDF</title>
-  <desc id="desc">แปลนบ้านชั้นเดียว มีครัว ห้องนอนสามห้อง ห้องน้ำสองห้อง โถงนั่งเล่น ระเบียง รายละเอียดผนัง ประตู หน้าต่าง เฟอร์นิเจอร์ และมิติ เลือกห้องเพื่อดูอุปกรณ์</desc>
+  <desc id="desc">แปลนบ้านชั้นเดียว มีครัว ห้องนอนสามห้อง ห้องน้ำสองห้อง โถงนั่งเล่น ระเบียง และเครื่องทำน้ำอุ่นสองเครื่อง เลือกห้องเพื่อดูอุปกรณ์จำลอง</desc>
   <defs>
     <pattern id="wallHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7c827d" stroke-width="1"/></pattern>
     <style>
@@ -49,6 +49,7 @@
     <g id="basin"><ellipse class="fixture" cx="0" cy="0" rx="19" ry="14"/><ellipse class="fine" cx="0" cy="0" rx="8" ry="5"/><circle class="fine" cx="0" cy="0" r="2"/></g>
     <g id="toilet"><rect class="fixture" x="-11" y="-21" width="22" height="14" rx="2"/><path class="fixture" d="M-9-7h18v7a12 12 0 0 1-24 0v-7Z"/><ellipse class="fine" cx="0" cy="0" rx="6" ry="8"/></g>
     <g id="bed"><path class="bed-fill" d="M0 15Q5 3 0-9Q9-15 17-8Q30-11 42-6Q56-14 70-7Q87-14 101-7Q118-15 132-7Q146-13 158-5L164 15V105L157 113Q140 107 128 114Q111 107 98 114Q82 107 67 114Q51 107 37 113Q22 106 10 113L0 105Z"/><path class="bed-line" d="M12 20Q20 35 13 49Q7 67 16 81Q22 94 12 106M38 17Q50 31 43 47Q34 68 45 82Q51 94 41 108M68 15Q79 30 72 48Q64 67 74 83Q79 96 68 109M101 15Q111 28 104 45Q96 63 106 81Q112 96 101 109M132 14Q140 31 134 48Q128 65 138 83Q143 97 133 108"/><rect class="furniture" x="130" y="2" width="26" height="36" rx="5"/><path class="fine" d="M135 7h16m-16 5h16"/><rect class="furniture" x="130" y="52" width="26" height="36" rx="5"/><path class="fine" d="M135 57h16m-16 5h16"/></g>
+    <g id="heaterIcon"><rect x="0" y="0" width="23" height="18" rx="2" fill="#fff4ea" stroke="#b96d45" stroke-width="1.4"/><path d="M5 5h13M5 9h13M5 13h7" fill="none" stroke="#b96d45" stroke-width="1"/><circle cx="18" cy="14" r="1.2" fill="#df7d4d"/></g>
   </defs>
 
   <!-- Clickable room areas sit under the architectural linework. -->
@@ -98,11 +99,13 @@
 
     <!-- Bathroom 1 -->
     <use href="#basin" x="687" y="322"/><use href="#toilet" x="737" y="347"/>
+    <use href="#heaterIcon" x="690" y="366"/>
     <rect class="furniture" x="772" y="306" width="46" height="76"/><path class="fine" d="M778 312v64m7-64v64m7-64v64m7-64v64"/>
-    <rect class="furniture" x="744" y="357" width="75" height="28"/><text class="room-label" x="781" y="369">ห้องน้ำ 2</text><text class="room-level" x="781" y="380">W2 +0.90 ม.</text>
+    <rect class="furniture" x="744" y="357" width="75" height="28"/><text class="room-label" x="781" y="369">ห้องน้ำ 1</text><text class="room-level" x="781" y="380">W2 +0.90 ม.</text>
     <!-- Bathroom 2 -->
     <use href="#toilet" x="380" y="631"/><use href="#basin" x="427" y="614"/>
-    <rect class="furniture" x="292" y="641" width="70" height="27"/><text class="room-label" x="327" y="652">ห้องน้ำ 1</text><text class="room-level" x="327" y="663">W2 +0.90 ม.</text>
+    <use href="#heaterIcon" x="465" y="606"/>
+    <rect class="furniture" x="292" y="641" width="70" height="27"/><text class="room-label" x="327" y="652">ห้องน้ำ 2</text><text class="room-level" x="327" y="663">W2 +0.90 ม.</text>
 
     <!-- Living room furniture -->
     <rect class="furniture" x="702" y="768" width="40" height="52"/><path class="fine" d="M708 776h28m-28 7h28m-28 7h28m-28 7h28m-28 7h28"/>
