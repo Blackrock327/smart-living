@@ -364,7 +364,7 @@ function renderMetrics() {
 function renderRoom() {
   const room = selectedRoom === 'all' ? null : roomById(selectedRoom);
   document.querySelector('#roomTitle').textContent = room ? room.name : 'ภาพรวมทุกห้อง';
-  document.querySelector('#roomNumber').textContent = room ? `ZONE 0${rooms.indexOf(room) + 1}` : 'ALL';
+  document.querySelector('#roomNumber').textContent = room ? `พื้นที่ 0${rooms.indexOf(room) + 1}` : 'ทั้งหมด';
   const roomIcon = room ? (room.kind === 'bedroom' ? 'bed' : room.kind === 'service' ? 'house' : 'sofa') : 'house';
   document.querySelector('#roomIcon').innerHTML = `<i data-lucide="${roomIcon}" aria-hidden="true"></i>`;
   const scope = room ? [room] : rooms;

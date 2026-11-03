@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f6f3">
   <meta name="description" content="เครื่องจำลองการใช้ไฟของบ้านตามช่วงเวลาและรูปแบบการใช้งาน">
-  <title>Smart Living | Energy Simulator</title>
-  <!-- ไฟล์ style.css อยู่โฟลเดอร์เดียวกับ index.html -->
-    <link rel="stylesheet" href="style.css?v=28">
-    <script src="script.js?v=33" defer></script>
+  <title>Smart Living | จำลองการใช้ไฟ</title>
+  <link rel="stylesheet" href="style.css?v=29">
+  <script src="script.js?v=34" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -17,7 +16,7 @@
         <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 15.5 16 5l12 10.5v12H4z"/><path d="M12 27.5v-8h8v8M9 15l7-6 7 6"/></svg></span>
         <span><strong>smart<span>living</span></strong><small>HOME SYSTEMS</small></span>
       </a>
-      <div class="side-label">WORKSPACE</div>
+      <div class="side-label">เมนูหลัก</div>
       <nav class="main-nav">
         <a class="nav-item active" href="#overview" aria-current="location"><i class="nav-icon" data-lucide="layout-dashboard" aria-hidden="true"></i> ภาพรวม</a>
         <a class="nav-item" href="#simulation"><i class="nav-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> จำลองการใช้ไฟ</a>
@@ -34,16 +33,16 @@
     <main id="top" class="main-content">
       <header class="topbar">
         <div class="breadcrumb">โครงการ <span>/</span> <b>บ้านพักอาศัย</b></div>
-        <div class="topbar-right"><span class="status-pill"><i></i> SYSTEM READY</span><button class="icon-button" id="resetDemo" type="button" title="คืนค่าการจำลองเริ่มต้น" aria-label="คืนค่าการจำลองเริ่มต้น"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button><div class="top-avatar">SL</div></div>
+        <div class="topbar-right"><span class="status-pill"><i></i> ระบบพร้อมใช้งาน</span><button class="icon-button" id="resetDemo" type="button" title="คืนค่าการจำลองเริ่มต้น" aria-label="คืนค่าการจำลองเริ่มต้น"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button><div class="top-avatar">SL</div></div>
       </header>
 
       <section id="overview" class="welcome-row">
-        <div><div class="eyebrow"><span class="eyebrow-line"></span> RESIDENTIAL · ENERGY MODEL</div><h1>จำลองการใช้ไฟ<span class="title-period">.</span></h1><p>ทดลองดูการใช้พลังงานของบ้านตามช่วงเวลาและรูปแบบการใช้ชีวิต</p></div>
+        <div><div class="eyebrow"><span class="eyebrow-line"></span> บ้านพักอาศัย · แบบจำลองพลังงาน</div><h1>จำลองการใช้ไฟ<span class="title-period">.</span></h1><p>ทดลองดูการใช้พลังงานของบ้านตามช่วงเวลาและรูปแบบการใช้ชีวิต</p></div>
         <div class="date-chip"><span class="date-icon"><i data-lucide="activity" aria-hidden="true"></i></span><span><small>สถานะระบบ</small><b><i class="live-dot"></i> พร้อมใช้งาน · จำลอง</b></span></div>
       </section>
 
       <section class="metric-grid" aria-label="ข้อมูลจากตารางอุปกรณ์">
-        <article class="metric-card metric-primary"><div class="metric-top"><span>อุปกรณ์ทั้งหมด</span><span class="metric-icon"><i data-lucide="cpu" aria-hidden="true"></i></span></div><div class="metric-value" id="totalDevices">—</div><div class="metric-foot"><span class="metric-foot-dot"></span> XLSX + เครื่องทำน้ำอุ่นตัวอย่าง</div><div class="metric-spark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="metric-card metric-primary"><div class="metric-top"><span>อุปกรณ์ทั้งหมด</span><span class="metric-icon"><i data-lucide="cpu" aria-hidden="true"></i></span></div><div class="metric-value" id="totalDevices">—</div><div class="metric-foot"><span class="metric-foot-dot"></span> ตารางอุปกรณ์ + เครื่องทำน้ำอุ่นตัวอย่าง</div><div class="metric-spark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
         <article class="metric-card"><div class="metric-top"><span>เครื่องปรับอากาศ</span><span class="metric-icon metric-icon-blue"><i data-lucide="wind" aria-hidden="true"></i></span></div><div class="metric-value" id="acCount">—</div><div class="metric-foot">เครื่อง · ตามตารางอุปกรณ์</div><div class="mini-bars blue-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
         <article class="metric-card"><div class="metric-top"><span>หลอดไฟ</span><span class="metric-icon metric-icon-amber"><i data-lucide="lightbulb" aria-hidden="true"></i></span></div><div class="metric-value" id="lightCount">—</div><div class="metric-foot">ดวง · ตามตารางอุปกรณ์</div><div class="mini-bars amber-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
         <article class="metric-card"><div class="metric-top"><span>พื้นที่ในแปลน</span><span class="metric-icon metric-icon-green"><i data-lucide="map" aria-hidden="true"></i></span></div><div class="metric-value">7<span class="metric-unit"> ห้อง</span></div><div class="metric-foot">ชั้นเดียว · แปลนโดยประมาณ</div><div class="mini-bars green-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
@@ -51,12 +50,12 @@
 
       <section id="simulation" class="panel simulation-panel" aria-labelledby="simulationTitle">
         <div class="equipment-heading simulation-heading">
-          <div><div class="section-kicker">DAY · MONTH · YEAR SIMULATOR</div><h2 id="simulationTitle">เครื่องจำลองการใช้ไฟ</h2><p class="panel-subtitle">เลือกช่วงเวลาที่ต้องการดู แล้วเลื่อนเวลาและวันที่เพื่อจำลองพลังงานสะสม</p></div>
-          <span class="simulation-badge"><i class="live-dot"></i> SIMULATION ONLY</span>
+          <div><div class="section-kicker">จำลองรายวัน · รายเดือน · รายปี</div><h2 id="simulationTitle">เครื่องจำลองการใช้ไฟ</h2><p class="panel-subtitle">เลือกช่วงเวลาที่ต้องการดู แล้วเลื่อนเวลาและวันที่เพื่อจำลองพลังงานสะสม</p></div>
+          <span class="simulation-badge"><i class="live-dot"></i> โหมดจำลอง</span>
         </div>
         <div class="simulation-grid">
           <div class="simulation-timeline">
-            <div class="simulation-section-heading simulation-input-heading" id="simulationInputTitle"><span class="simulation-section-number">01</span><div><b>ควบคุมช่วงเวลา</b><small>เลือกช่วงจำลอง เลื่อนเวลา และเริ่มหรือหยุดการเล่น</small></div><span class="simulation-section-tag">CONTROL</span></div>
+            <div class="simulation-section-heading simulation-input-heading" id="simulationInputTitle"><span class="simulation-section-number">01</span><div><b>ควบคุมช่วงเวลา</b><small>เลือกช่วงจำลอง เลื่อนเวลา และเริ่มหรือหยุดการเล่น</small></div><span class="simulation-section-tag">ควบคุม</span></div>
             <div class="simulation-toolbar">
               <div class="simulation-clock"><span id="simulationClockLabel">เวลาจำลอง</span><strong id="simulationClock">00:00</strong><small id="simulationDateLabel"></small><small id="simulationProfileLabel">วันธรรมดา</small></div>
               <div class="simulation-play-controls">
@@ -78,7 +77,7 @@
               <div class="timeline-ticks" id="periodTimelineTicks"></div>
             </div>
             <section class="simulation-output-card" aria-labelledby="simulationOutputTitle">
-              <div class="simulation-section-heading" id="simulationOutputTitle"><span class="simulation-section-number output-number">02</span><div><b>ผลลัพธ์การจำลอง</b><small>กำลังไฟ หน่วยสะสม ค่าใช้จ่าย และกราฟตามเวลาที่เลือก</small></div><span class="simulation-section-tag output-tag">OUTPUT</span></div>
+              <div class="simulation-section-heading" id="simulationOutputTitle"><span class="simulation-section-number output-number">02</span><div><b>ผลลัพธ์การจำลอง</b><small>กำลังไฟ หน่วยสะสม ค่าใช้จ่าย และกราฟตามเวลาที่เลือก</small></div><span class="simulation-section-tag output-tag">ผลลัพธ์</span></div>
               <div class="simulation-metrics">
                 <article class="simulation-metric"><span>กำลังไฟ ณ เวลานี้</span><strong><b id="simulationPower">0.00</b><small>kW</small></strong></article>
                 <article class="simulation-metric"><span id="simulationAccumulatedLabel">หน่วยสะสมถึงเวลานี้</span><strong><b id="simulationAccumulated">0.00</b><small>kWh</small></strong></article>
@@ -91,7 +90,7 @@
             </section>
           </div>
           <aside class="simulation-settings">
-            <div class="simulation-control-heading"><span>SIMULATION CONTROLS</span><b>รูปแบบและเหตุการณ์</b></div>
+            <div class="simulation-control-heading"><span>ตั้งค่าการจำลอง</span><b>รูปแบบและเหตุการณ์</b></div>
             <div class="simulation-scenes">
               <h3>รูปแบบการใช้ชีวิต</h3>
               <div class="scene-buttons">
@@ -118,7 +117,7 @@
             </div>
             <div class="simulation-result" aria-live="polite">
               <span class="result-label">รูปแบบจำลอง</span><b id="activeScenarioLabel">วันธรรมดา</b>
-              <div class="simulation-log-heading"><span class="result-label">EVENT LOG · ประวัติเหตุการณ์</span><span class="terminal-status">● READY</span></div>
+              <div class="simulation-log-heading"><span class="result-label">ประวัติเหตุการณ์</span><span class="terminal-status">● พร้อมใช้งาน</span></div>
               <ol class="simulation-log" id="simulationLog" role="log" aria-live="polite" aria-label="ประวัติเหตุการณ์จำลอง"><li><time>00:00</time> · ระบบจำลองพร้อม</li></ol>
             </div>
           </aside>
@@ -130,13 +129,13 @@
 
       <section id="floor-plan" class="content-grid">
         <article class="panel plan-panel">
-          <div class="panel-heading"><div><div class="section-kicker">SPATIAL OVERVIEW</div><h2>แปลนบ้าน</h2><p class="panel-subtitle">วาดใหม่ตามแปลน PDF บ้านที่คุณส่ง · คลิกห้องเพื่อซูม · คลิกห้องเดิมซ้ำเพื่อซูมออก</p></div><div class="plan-tools"><span class="approx-tag"><i data-lucide="map-pin" aria-hidden="true"></i> แปลนประมาณ</span><button class="small-button" id="showAllRooms" type="button">ดูทั้งแปลน <i data-lucide="maximize-2" aria-hidden="true"></i></button></div></div>
-          <div class="plan-canvas"><div class="north-mark"><span>N</span><i>↑</i></div><object id="floorPlan" data="floor-plan.svg?v=9" type="image/svg+xml" aria-label="แปลนบ้านแบบคลิกเลือกห้องและดูสถานะอุปกรณ์จำลองได้"><div class="object-fallback">เปิดแปลนไม่ได้ ตรวจสอบว่า floor-plan.svg อยู่โฟลเดอร์เดียวกัน</div></object><div class="plan-legend"><span><i class="legend-dot legend-bedroom"></i> ห้องนอน</span><span><i class="legend-dot legend-service"></i> พื้นที่บริการ</span><span><i class="legend-dot legend-common"></i> พื้นที่ส่วนกลาง</span><span><i class="legend-dot legend-device-on"></i> อุปกรณ์ทำงาน</span></div></div>
+          <div class="panel-heading"><div><div class="section-kicker">ภาพรวมพื้นที่</div><h2>แปลนบ้าน</h2><p class="panel-subtitle">วาดจากแปลนบ้านจริง · คลิกห้องเพื่อซูม · คลิกห้องเดิมซ้ำเพื่อซูมออก</p></div><div class="plan-tools"><span class="approx-tag"><i data-lucide="map-pin" aria-hidden="true"></i> แปลนประมาณ</span><button class="small-button" id="showAllRooms" type="button">ดูทั้งแปลน <i data-lucide="maximize-2" aria-hidden="true"></i></button></div></div>
+          <div class="plan-canvas"><div class="north-mark"><span>N</span><i>↑</i></div><object id="floorPlan" data="floor-plan.svg?v=9" type="image/svg+xml" aria-label="แปลนบ้านแบบคลิกเลือกห้องและดูสถานะอุปกรณ์จำลองได้"><div class="object-fallback">แสดงแปลนไม่ได้ กรุณารีเฟรชหน้าเว็บ</div></object><div class="plan-legend"><span><i class="legend-dot legend-bedroom"></i> ห้องนอน</span><span><i class="legend-dot legend-service"></i> พื้นที่บริการ</span><span><i class="legend-dot legend-common"></i> พื้นที่ส่วนกลาง</span><span><i class="legend-dot legend-device-on"></i> อุปกรณ์ทำงาน</span></div></div>
           <div class="dimension-strip"><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านยาว</small><b>12.50 <em>ม.</em></b></span></div><div><span class="dim-symbol">↔</span><span><small>มิติอ้างอิงด้านกว้าง</small><b>9.70 <em>ม.</em></b></span></div><div class="dimension-note">อ้างอิงตัวเลขที่อ่านได้จากแบบ PDF<br>ตำแหน่งและสัดส่วนในภาพเป็นค่าประมาณ</div></div>
         </article>
 
         <aside class="panel detail-panel" aria-live="polite">
-          <div class="detail-heading"><div><div class="section-kicker">ROOM DETAILS</div><h2 id="roomTitle">ภาพรวมทุกห้อง</h2></div><span class="room-number" id="roomNumber">ALL</span></div>
+          <div class="detail-heading"><div><div class="section-kicker">รายละเอียดห้อง</div><h2 id="roomTitle">ภาพรวมทุกห้อง</h2></div><span class="room-number" id="roomNumber">ทั้งหมด</span></div>
           <div class="room-summary"><div class="room-illustration" id="roomIcon"><i data-lucide="house" aria-hidden="true"></i></div><div><span class="summary-label">อุปกรณ์ในพื้นที่</span><strong id="roomDeviceTotal">—</strong><small>รายการที่ระบุในตาราง</small></div></div>
           <div class="device-list" id="deviceList"></div>
           <div class="detail-divider"></div>
@@ -146,18 +145,18 @@
       </section>
 
           <section id="equipment" class="panel equipment-panel">
-        <div class="equipment-heading"><div><div class="section-kicker">INVENTORY</div><h2>รายการอุปกรณ์ในบ้าน</h2></div><span class="source-label"><i data-lucide="file-spreadsheet" aria-hidden="true"></i> ตาราง XLSX + รายการตัวอย่าง</span></div>
+        <div class="equipment-heading"><div><div class="section-kicker">รายการอุปกรณ์</div><h2>รายการอุปกรณ์ในบ้าน</h2></div><span class="source-label"><i data-lucide="file-spreadsheet" aria-hidden="true"></i> ตารางอุปกรณ์ + รายการตัวอย่าง</span></div>
         <div class="equipment-table-wrap"><table><thead><tr><th>ประเภทอุปกรณ์</th><th>จำนวน</th><th>ตำแหน่งในแปลน</th><th>กำลังไฟเฉลี่ย/เครื่อง</th></tr></thead><tbody id="inventoryRows"></tbody></table></div>
         <div class="table-footnote"><i data-lucide="info" aria-hidden="true"></i> เพิ่มเครื่องทำน้ำอุ่นตัวอย่าง 1 เครื่องต่อห้องน้ำ รวม 2 เครื่อง</div>
       </section>
       <section id="energy" class="panel energy-panel">
         <div class="equipment-heading">
-          <div><div class="section-kicker">ENERGY ESTIMATE</div><h2>รายละเอียดพลังงานและค่าไฟ</h2><p class="panel-subtitle">คำนวณจากตารางเวลาและอุปกรณ์ที่เลือกรวมในรูปแบบจำลอง</p></div>
+          <div><div class="section-kicker">ประมาณการพลังงาน</div><h2>รายละเอียดพลังงานและค่าไฟ</h2><p class="panel-subtitle">คำนวณจากตารางเวลาและอุปกรณ์ที่เลือกรวมในรูปแบบจำลอง</p></div>
           <span class="source-label estimate-label">ค่าประมาณ · ไม่ใช่ค่ามิเตอร์จริง</span>
         </div>
         <div class="energy-summary">
           <div class="energy-total-card"><span>ประมาณการหน่วยไฟ 30 วันตามรูปแบบที่เลือก</span><div><strong id="energyTotal">—</strong><b>kWh / เดือน</b></div><small>สมมติว่ารูปแบบของวันนี้เกิดซ้ำ 30 วัน · ปรับตามตารางและอุปกรณ์</small></div>
-          <div class="energy-daily-card"><span>เฉลี่ยต่อวัน</span><strong><span id="energyDaily">—</span> <small>kWh / วัน</small></strong><p>ปรับค่ากำลังไฟและชั่วโมงใช้งานได้ใน <code>script.js</code></p></div>
+          <div class="energy-daily-card"><span>เฉลี่ยต่อวัน</span><strong><span id="energyDaily">—</span> <small>kWh / วัน</small></strong><p>ค่าประมาณอ้างอิงจากการใช้งานตัวอย่างและตารางอุปกรณ์</p></div>
         </div>
         <div class="bill-estimate-panel">
           <div class="bill-estimate-heading">
@@ -199,10 +198,10 @@
           <table class="energy-table"><thead><tr><th>เครื่องใช้ไฟฟ้าที่เปิด</th><th>จำนวนเปิด</th><th>กำลังไฟเฉลี่ย/เครื่อง</th><th>เวลาใช้งานตัวอย่าง</th><th>ประมาณ kWh/เดือน</th></tr></thead><tbody id="energyRows"></tbody></table>
         </div>
         <div class="energy-method"><b>วิธีคำนวณ</b><span>เครื่องทั่วไป: วัตต์ × ชั่วโมง/วัน × 30 วัน × จำนวนเครื่อง ÷ 1,000</span></div>
-        <p class="energy-disclaimer">ค่ากำลังไฟและตารางเวลาเป็นสมมติฐานจากการใช้งานตัวอย่าง ปรับกำลังไฟได้ใน script.js และปรับรูปแบบในระบบจำลอง ค่าใช้จ่ายคำนวณโดยสมมติว่ารูปแบบที่เลือกซ้ำ 30 วัน ไม่ใช่ค่าจากมิเตอร์จริง เครื่องทำน้ำอุ่นใช้ตัวอย่าง 3,500 W และอาบวันละ 15 นาทีต่อเครื่อง</p>
+        <p class="energy-disclaimer">ค่ากำลังไฟและตารางเวลาเป็นสมมติฐานจากการใช้งานตัวอย่าง ค่าใช้จ่ายคำนวณโดยสมมติว่ารูปแบบที่เลือกซ้ำ 30 วัน ไม่ใช่ค่าจากมิเตอร์จริง เครื่องทำน้ำอุ่นใช้ตัวอย่าง 3,500 W และอาบวันละ 15 นาทีต่อเครื่อง</p>
         <div class="energy-sources"><b>แหล่งอ้างอิงสำหรับช่วงค่าและวิธีประเมิน</b><a href="https://www.pea.co.th/news/infographic/1812" target="_blank" rel="noopener noreferrer">การไฟฟ้าส่วนภูมิภาค (PEA): ค่าใช้จ่ายเฉลี่ยของเครื่องใช้ไฟฟ้าและตู้เย็นทำงานตลอดวัน</a><a href="https://www.energy.gov/sites/default/files/2022-02/ssl-rd22_urban_display.pdf" target="_blank" rel="noopener noreferrer">U.S. Department of Energy: กำลังไฟและชั่วโมงใช้งานทีวีเฉลี่ยจากการสำรวจ</a><a href="https://www.energy.gov/cmei/femp/purchasing-energy-efficient-light-bulbs" target="_blank" rel="noopener noreferrer">U.S. Department of Energy: กำลังไฟหลอด LED ตามระดับความสว่าง</a><a href="https://www.midea.com/th/news/water-heater-electricity-cost" target="_blank" rel="noopener noreferrer">Midea: ตัวอย่างเครื่องทำน้ำอุ่น 3,500–4,500 W และการใช้วันละ 15 นาที</a></div>
       </section>
-      <footer class="footer"><span>SMART LIVING <i>·</i> ENGINEERING BLUEPRINT</span><span>ข้อมูลแสดงเพื่อสาธิตการจัดวางระบบบ้าน</span></footer>
+      <footer class="footer"><span>SMART LIVING <i>·</i> ผังระบบบ้าน</span><span>ข้อมูลแสดงเพื่อสาธิตการจัดวางระบบบ้าน</span></footer>
     </main>
   </div>
   <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true"></div>
